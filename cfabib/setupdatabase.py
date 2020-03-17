@@ -61,126 +61,126 @@ def populate():
     add_Bibgroup("HST")
     add_Bibgroup("NOAO")
 
-    name="cfa-test"
+#     name="cfa-test"
 
-    bibg=1
+#     bibg=1
 
-    auth="""Bouquin, Daina
-Frey, Katie
-Accomazzi, Alberto
-Alcock, Charles
-Aldcroft, Thomas"""
+#     auth="""Bouquin, Daina
+# Frey, Katie
+# Accomazzi, Alberto
+# Alcock, Charles
+# Aldcroft, Thomas"""
 
-    inst="""harvard-smithsonian
-60 garden"""
+#     inst="""harvard-smithsonian
+# 60 garden"""
 
-    estem="""arXiv
-ATel1
-ATel.
-yCat.
-MPEC.
-sptz.
-Cosp.
-DPS..
-IAUC.
-SPD..
-AGUFM
-AGUSM
-APS..
-IAUFM
-AAS..
-HEAD.
-DDA.."""
+#     estem="""arXiv
+# ATel1
+# ATel.
+# yCat.
+# MPEC.
+# sptz.
+# Cosp.
+# DPS..
+# IAUC.
+# SPD..
+# AGUFM
+# AGUSM
+# APS..
+# IAUFM
+# AAS..
+# HEAD.
+# DDA.."""
 
-    evol="""prop
-.tmp"""
+#     evol="""prop
+# .tmp"""
 
-    istem="""CBET."""
+#     istem="""CBET."""
 
-    ivol="""conf
-book"""
-    add_Criteria(name, bibg, auth, inst, estem, evol, istem, ivol)
-
-
-    name="cfa-test2"
-
-    bibg=1
-
-    auth="""Bouquin, Daina
-Frey, Katie
-Accomazzi, Alberto
-Alcock, Charles
-Aldcroft, Thomas"""
-
-    inst="""harvard-smithsonian
-60 garden"""
-
-    estem="""arXiv
-ATel1
-ATel.
-yCat.
-MPEC.
-sptz.
-Cosp.
-DPS..
-IAUC.
-SPD..
-AGUFM
-AGUSM
-APS..
-IAUFM
-AAS..
-HEAD.
-DDA.."""
-
-    evol="""prop
-.tmp"""
-
-    istem="""CBET."""
-
-    ivol="""conf
-book"""
-    add_Criteria(name, bibg, auth, inst, estem, evol, istem, ivol)
+#     ivol="""conf
+# book"""
+#     add_Criteria(name, bibg, auth, inst, estem, evol, istem, ivol)
 
 
-    name="hst-test"
+#     name="cfa-test2"
 
-    bibg=3
+#     bibg=1
 
-    auth="""Novacescu, Jenny
-Koekemoer, Anton
-Ferguson, Henry"""
+#     auth="""Bouquin, Daina
+# Frey, Katie
+# Accomazzi, Alberto
+# Alcock, Charles
+# Aldcroft, Thomas"""
 
-    inst="""hubble space telescope
-space telescope science institute"""
+#     inst="""harvard-smithsonian
+# 60 garden"""
 
-    estem="""arXiv
-ATel1
-ATel.
-yCat.
-MPEC.
-sptz.
-Cosp.
-DPS..
-IAUC.
-SPD..
-AGUFM
-AGUSM
-APS..
-IAUFM
-AAS..
-HEAD.
-DDA.."""
+#     estem="""arXiv
+# ATel1
+# ATel.
+# yCat.
+# MPEC.
+# sptz.
+# Cosp.
+# DPS..
+# IAUC.
+# SPD..
+# AGUFM
+# AGUSM
+# APS..
+# IAUFM
+# AAS..
+# HEAD.
+# DDA.."""
 
-    evol="""prop
-.tmp"""
+#     evol="""prop
+# .tmp"""
 
-    istem="""CBET."""
+#     istem="""CBET."""
 
-    ivol="""conf
-book"""
+#     ivol="""conf
+# book"""
+#     add_Criteria(name, bibg, auth, inst, estem, evol, istem, ivol)
 
-    add_Criteria(name, bibg, auth, inst, estem, evol, istem, ivol)
+
+#     name="hst-test"
+
+#     bibg=3
+
+#     auth="""Novacescu, Jenny
+# Koekemoer, Anton
+# Ferguson, Henry"""
+
+#     inst="""hubble space telescope
+# space telescope science institute"""
+
+#     estem="""arXiv
+# ATel1
+# ATel.
+# yCat.
+# MPEC.
+# sptz.
+# Cosp.
+# DPS..
+# IAUC.
+# SPD..
+# AGUFM
+# AGUSM
+# APS..
+# IAUFM
+# AAS..
+# HEAD.
+# DDA.."""
+
+#     evol="""prop
+# .tmp"""
+
+#     istem="""CBET."""
+
+#     ivol="""conf
+# book"""
+
+#     add_Criteria(name, bibg, auth, inst, estem, evol, istem, ivol)
 
 
 

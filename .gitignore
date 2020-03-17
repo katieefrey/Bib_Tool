@@ -17,11 +17,10 @@
 /__pycache__/
 
 cfabib/CfA_Bib_Helper.py
-cfabib/author_list-1.txt
-cfabib/author_list-2.txt
-cfabib/author_list-3.txt
-cfabib/author_list-old.txt
-cfabib/author_list.txt
+cfabib/author_list*.txt
+cfabib/newbibs*.txt
+cfabib/false_positives*.txt
+cfabib/check.csv
 cfabib/dev_key.txt
 cfabib/dq.sqlite3
 cfabib/inc_add_list.txt
