@@ -5,6 +5,7 @@ from django.urls import reverse
 from .models import Criteria, Batch
 from bibtool.models import Article
 
+import csv
 import json
 import requests
 import urllib.parse
@@ -22,7 +23,7 @@ def bmindex(request):
     context = {}
     return render(request, "bibmanage/index.html", context)
 
-def export(request):
+def batch(request):
     #if they are NOT loggedin...
     if not request.user.is_authenticated:
         context = {
@@ -65,10 +66,10 @@ def export(request):
         context["openbatch"] = None
 
 
-    return render(request, "bibmanage/export.html", context)
+    return render(request, "bibmanage/batch.html", context)
 
 
-def batch(request,batchid):
+def viewbatch(request,batchid):
 
     #if they are NOT loggedin...
     if not request.user.is_authenticated:
@@ -81,18 +82,14 @@ def batch(request,batchid):
     username = request.user
     bibgroup = username.bibgroup
 
-    # create new batch
-    # number of all CfA verified bibcodes not in a batch
-    # view all bibcodes?
-
     try:
         onebatch = Batch.objects.get(bibgroup=bibgroup,id=batchid)
 
-        bibs = Article.objects.filter(batch_id=batchid)
-        numbibs = len(bibs)
+        numbibs = Article.objects.filter(batch_id=batchid).count()
+
         context = {
+            "err": "",
             "batch" : onebatch,
-            "bibs" : bibs,
             "numbibs" : numbibs,
         }
 
@@ -100,7 +97,27 @@ def batch(request,batchid):
 
     except Batch.DoesNotExist:
 
-        return HttpResponseRedirect(reverse("export"))
+        return HttpResponseRedirect(reverse("batch"))
+
+
+
+def export(request):
+
+    batchid = request.POST["batchid"]
+    print(batchid)
+
+    bibs = Article.objects.filter(batch_id=batchid)
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename="batch_'+batchid+'.txt"'
+
+    writer = csv.writer(response)
+
+    for x in bibs:
+        writer.writerow([x.bibcode])
+
+    return response
 
 
 def add(request):

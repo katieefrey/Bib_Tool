@@ -17,7 +17,7 @@ class Batch(models.Model):
 
 
     def __str__(self):
-        return f"{self.id} {self.created}"
+        return f"Closed: {self.closed} | Batch #: {self.id}"
 
 class Criteria(models.Model):
     name = models.CharField(max_length=20, unique=True)

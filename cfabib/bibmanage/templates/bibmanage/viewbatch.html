@@ -21,33 +21,29 @@
     </div>
     <div class="row">
         <div class="col-6"> 
-
             {% if err != "" %}
             {{err}}
             {% endif %}
-            
-            Select <a href="/bibmanage/add">Criteria for adding entries</a> to the bibliography. (NYI)
-            <br/><br/>
-            <a href="/bibmanage/export">Export batches</a>
-            <br/><br/>
-            All Batches: <br/>
-            {% for batch in batches %}
-            {{batch.id}}<br/>
-            {% endfor %}
 
+            <b>Batch Created:</b> {{batch.created}}
+            <br/><br/>
+            <b>Batch Closed:</b> {{batch.modified}}
+            <br/><br/>
+            <b>Number of Bibcodes</b>: {{numbibs}}
+            <br/><br/>
+            <form action="{% url 'export' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="batchid" value="{{batch.id}}">
+                <button type="submit" class="btn btn-primary">Export Bibcodes</button>
+            </form>
+
+            <br/><br/>
+            <a href="/bibmanage/batch">Back to Batches Main</a>
 
         </div>
 
-        <div class="col-6">
-            this is batch number.. {{batch.id}}
-            <br/> <br/>
-            The {{numbibs}} bibcodes in this batch are....<br/>
-            {% for bib in bibs %}
-            {{bib.bibcode}}<br/>
-            {% endfor %}
 
 
-        </div>
     </div>
 </div>
 
