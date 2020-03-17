@@ -1,0 +1,4 @@
+Django
+django-crispy-forms
+django_heroku
+python-dotenv

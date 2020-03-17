@@ -1,0 +1,50 @@
+Bibsearch
+- search ADS API
+- search by bibgroup
+- search by name or orcid
+- search by date range
+- don't need to be logged in
+
+Bibtool
+- evaluate items for inclusion into bibliography
+- library staff user, must be logged in
+
+Bibmanage
+- search ADS API based on criteria to add new bibcodes for evaluating
+- uses their own API key
+- instituion, names, excluded bibstems/volumes, included bibstems/volumes
+- see and manage batch submissions to ADS
+
+
+
+
+1) main index page -- make it look nice
+
+
+2) admin view
+    - admin can view list of "maybe" articles
+        - admin can click on a link to get to the article abstract in ADS, open in new tab
+        - admin can change status and affiliations
+            - dropdowns by article title? radio buttons?
+        - button to submit database changes also sends an email with the new "yes" bibcodes (hardcode your email address)
+	- admin can view time-stamped batches of uploads for each batch show number of modified records and number of records that haven't been modified. 
+
+Click into a specific batch and view first un-modified 
+
+Search all 
+ 
+
+
+3) user view
+    - users can get total count of cfa articles from a given year (use 2019 as the example year)
+        - incl sub breakdown of sao and hco totals
+
+4) search page
+    - the search page searches the ADS API (not our database!)
+	- limit API search to CfA bibliography (bibgroup:CfA)
+        - users can search by author name (lastname, firstname)
+        - search by pub date (year, month, day)
+
+5) results from search
+     - display a list of results
+        - bibcode, title, publication, date, authors, affiliations, citation count
