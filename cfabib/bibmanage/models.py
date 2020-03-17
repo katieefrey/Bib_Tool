@@ -11,7 +11,10 @@ class Bibgroup(models.Model):
 
 class Batch(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    closed = models.DateTimeField(null=True,blank=True)
+    bibgroup = models.ForeignKey(Bibgroup, on_delete=models.CASCADE)
+    closed = models.BooleanField()
+    modified = models.DateTimeField(auto_now=True, null=True, blank=True)
+
 
     def __str__(self):
         return f"{self.id} {self.created}"

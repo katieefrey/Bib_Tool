@@ -17,13 +17,9 @@
 /__pycache__/
 
 cfabib/CfA_Bib_Helper.py
-cfabib/author_list*.txt
-cfabib/newbibs*.txt
-cfabib/false_positives*.txt
+cfabib/*.txt
 cfabib/check.csv
-cfabib/dev_key.txt
 cfabib/dq.sqlite3
-cfabib/inc_add_list.txt
 bibhelper.py
 importdata-old.py
 

@@ -213,9 +213,9 @@ def post_massupdate(request):
 
     # if the cfastatus is 5, that means this is NOT a CfA record
     if int(cfastatus) == 5:
-        bibstatus = 1
-    elif int(cfastatus) == 4:
         bibstatus = 2
+    elif int(cfastatus) == 4:
+        bibstatus = 3
     # every other status means that this is a CfA record
     else:
         bibstatus = 1
@@ -246,9 +246,9 @@ def post_update(request):
         # if the cfastatus is 5, that means this is NOT a CfA record
         if int(cfastatus) == 5:
             #print ("not cfa")
-            bibstatus = 1
-        elif int(cfastatus) == 4:
             bibstatus = 2
+        elif int(cfastatus) == 4:
+            bibstatus = 1
         # every other status means that this is a CfA record
         else:
             #print ("yes cfa")

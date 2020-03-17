@@ -53,29 +53,32 @@ excluded_volumes = ["prop",".tmp"]
 devkey = (open('dev_key.txt','r')).read()
 
 authorlist = (open('author_list.txt','r')).read()
-authorlist3 = (open('author_list-3.txt','r')).read()
+#authorlist3 = (open('author_list-3.txt','r')).read()
 incafflist = (open('inc_aff_list.txt','r')).read()
 
 
 inc_aff_list = incafflist.splitlines()
 auth_list = authorlist.splitlines()
-auth_list3 = authorlist3.splitlines()
+#auth_list3 = authorlist3.splitlines()
 
 url = 'https://api.adsabs.harvard.edu/v1/search/query/?q='
 
 
 def add_Article(data1, data2, data3, data4, data5, data6, data7, data8):
-    d, created = Article.objects.get_or_create(bibcode=data1, guess_id=data2, query=data3, affils=data4, adminbibgroup_id=data5, authnum=data6, status_id=data7, inst_id=data8)
+    try:
+        d, created = Article.objects.get_or_create(bibcode=data1, guess_id=data2, query=data3, affils=data4, adminbibgroup_id=data5, authnum=data6, status_id=data7, inst_id=data8)
+        return d
 
-    return d
+    except django.db.utils.IntegrityError:
+        print("already in database")
+        return
 
 def getloop(qtype,query,daterange,devkey):
     q = qtype+':%22'+ urllib.parse.quote(query) + '%22%20pubdate:%5B' + daterange + '%5D'
     headers = {'Authorization': 'Bearer '+devkey}
     content = requests.get(url + q, headers=headers)
-    #print (content)
     results = content.json()
-    print (results)
+    #print (results)
     num = results['response']['numFound']
     return num
 
@@ -215,8 +218,8 @@ if __name__ == "__main__":
     for x in inc_aff_list:
         adsquery("aff",x,pubdate,devkey)
 
-    for x in auth_list:
-        adsquery("author",x,pubdate,devkey)
+    # for x in auth_list:
+    #     adsquery("author",x,pubdate,devkey)
 
 
     print ("finished!")

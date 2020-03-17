@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
 
-from .models import Criteria
+from .models import Criteria, Batch
 from bibtool.models import Article
 
 import json
@@ -10,7 +11,7 @@ import urllib.parse
 import time
 
 # Create your views here.
-def bmindex1(request):
+def bmindex(request):
     #if they are NOT loggedin...
     if not request.user.is_authenticated:
         context = {
@@ -18,10 +19,90 @@ def bmindex1(request):
             }
         return render(request, "bibtool/index.html", context)
     
+    context = {}
     return render(request, "bibmanage/index.html", context)
 
+def export(request):
+    #if they are NOT loggedin...
+    if not request.user.is_authenticated:
+        context = {
+            "state": "home"
+            }
+        return render(request, "bibtool/index.html", context)
+    
+    #otherwise, if they are logged in...
+    username = request.user
+    bibgroup = username.bibgroup
 
-def bmindex(request):
+    # create new batch
+    # number of all CfA verified bibcodes not in a batch
+    # view all bibcodes?
+
+    closed = Batch.objects.filter(bibgroup=bibgroup,closed=True)
+
+    newbibs = Article.objects.filter(status_id=1,batch_id=None)
+    for x in newbibs:
+        print (x.bibcode)
+    
+    context = {
+        "closed":  closed,
+        "newbibs" : newbibs,
+        "err" : "",
+    }
+
+    try:
+        openbatch = Batch.objects.get(bibgroup=bibgroup,closed=False)
+        
+        openbatart = Article.objects.filter(batch_id=openbatch.id)
+        
+
+        context["openbatch"] = openbatch
+        context["num"] = len(openbatart)
+
+
+    except Batch.DoesNotExist:
+        context["openbatch"] = None
+
+
+    return render(request, "bibmanage/export.html", context)
+
+
+def batch(request,batchid):
+
+    #if they are NOT loggedin...
+    if not request.user.is_authenticated:
+        context = {
+            "state": "home"
+            }
+        return render(request, "bibtool/index.html", context)
+    
+    #otherwise, if they are logged in...
+    username = request.user
+    bibgroup = username.bibgroup
+
+    # create new batch
+    # number of all CfA verified bibcodes not in a batch
+    # view all bibcodes?
+
+    try:
+        onebatch = Batch.objects.get(bibgroup=bibgroup,id=batchid)
+
+        bibs = Article.objects.filter(batch_id=batchid)
+        numbibs = len(bibs)
+        context = {
+            "batch" : onebatch,
+            "bibs" : bibs,
+            "numbibs" : numbibs,
+        }
+
+        return render(request, "bibmanage/viewbatch.html", context)
+
+    except Batch.DoesNotExist:
+
+        return HttpResponseRedirect(reverse("export"))
+
+
+def add(request):
     #if they are NOT loggedin...
     if not request.user.is_authenticated:
         context = {

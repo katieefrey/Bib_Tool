@@ -4,7 +4,9 @@ from . import views
 
 urlpatterns = [
     path('', views.bmindex, name='bmindex'),
-    #path('add', views.add, name='add'),
+    path('add', views.add, name='add'),
+    path('export', views.export, name='export'),
+    path('batch/<int:batchid>', views.batch, name='batch'),
     path('add_post', views.add_post, name='add_post'),
     path('delete_post', views.delete_post, name='delete_post'),
     path('select_criteria', views.select_criteria, name='select_criteria'),

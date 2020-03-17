@@ -27,17 +27,17 @@ class Guess(models.Model):
         return f"{self.guess}"
 
 class Article(models.Model):
-    bibcode = models.CharField(max_length=19)
+    bibcode = models.CharField(max_length=19, unique=True)
     adminbibgroup = models.ForeignKey(Bibgroup, on_delete=models.CASCADE)
     #bibgroupcheck = models.ForeignKey(Bibgroup, on_delete=models.CASCADE)
     guess = models.ForeignKey(Guess, on_delete=models.CASCADE)
-    query = models.CharField(max_length=100, null=True)
-    affils = models.TextField(null=True)
-    authnum = models.IntegerField(null=True)
+    query = models.CharField(max_length=100, null=True, blank=True)
+    affils = models.TextField(null=True, blank=True)
+    authnum = models.IntegerField(null=True, blank=True)
     status = models.ForeignKey(Status, on_delete=models.CASCADE)
     inst = models.ForeignKey(Affil, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True, null=True)
+    modified = models.DateTimeField(auto_now=True, null=True, blank=True)
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):

@@ -11,60 +11,61 @@ django.setup()
 from bibtool.models import Article
 
 def add_Article(data1, data2, data3, data4, data5, data6, data7, data8):
-    d, created = Article.objects.get_or_create(bibcode=data1, guess_id=data2, query=data3, affils=data4, adminbibgroup_id=data5, authnum=data6, status_id=data7, inst_id=data8)
+    try:
+        d, created = Article.objects.get_or_create(bibcode=data1, guess_id=data2, query=data3, affils=data4, adminbibgroup_id=data5, authnum=data6, status_id=data7, inst_id=data8)
 
-    return d
+        return d
+
+    except django.db.utils.IntegrityError:
+        print("already in database")
+        return
 
 
-with open('check.csv') as csv_file:
-    csv_reader = csv.reader(csv_file, delimiter=',')
-    for row in csv_reader:
-        print(row)
+# with open('check.csv') as csv_file:
+#     csv_reader = csv.reader(csv_file, delimiter=',')
+#     for row in csv_reader:
+#         print(row)
 
         
-        add_Article(row[0],2,row[3],row[4],1,row[6],3,4)
-
-
-"""
-# STATUS
-CfA
-Not CfA
-maybe
-doubtful
-
-
-#AFFIL
-HCO
-SAO
-Both
-unknown
-neither
-either
-
-# GUESS
-likely
-review
-review-visit
-review-nonsao
-revire-noncfa
-doubful
-
-# bibgroup
-CfA
-
-"""
+#         add_Article(row[0],2,row[3],row[4],1,row[6],3,4)
 
 
 
+def add_bibcodes(data1, data2, data5, data7, data8):
+    try:
+        d, created = Article.objects.get_or_create(bibcode=data1, guess_id=data2, adminbibgroup_id=data5, status_id=data7, inst_id=data8)
+        return d
+
+    except django.db.utils.IntegrityError:
+        print("already in database")
+        return
 
 
-# devkey = (open('dev_key.txt','r')).read()
+def mod_falsepos(bibcode):
 
-# matches = (open('dev_key.txt','r')).read()
+    mod = Article.objects.get(bibcode=bibcode)
+    mod.status_id = 2
+    mod.inst_id = 5
+    mod.save()
 
-# falsepos = (open('dev_key.txt','r')).read()
+
+
+def mod_pos(bibcode):
+
+    mod = Article.objects.get(bibcode=bibcode)
+    mod.status_id = 1
+    mod.inst_id = 6
+    mod.batch_id = 1
+    mod.save()
 
 
 
+# with open('newbibs_2020_03_16.txt') as csv_file:
+#     biblist = csv_file.read()
+#     biblist1 = biblist.splitlines()
+#     for row in biblist1:
+#         print(row)
 
-# inc_aff_list = incafflist.splitlines()
+        
+#         add_bibcodes(row,2,1,3,4)
+#         mod_pos(row)

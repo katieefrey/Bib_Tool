@@ -30,7 +30,7 @@ DEBUG = True
 #ALLOWED_HOSTS = []
 
 #live
-ALLOWED_HOSTS = ['bibtool.wolba.ch' , 'www.bibtool.wolba.ch']
+ALLOWED_HOSTS = ['bibtool.wolba.ch' , 'www.bibtool.wolba.ch', '127.0.0.1']
 
 # Heroku
 #ALLOWED_HOSTS = ['cfabib.herokuapp.com'] #HEROKU
