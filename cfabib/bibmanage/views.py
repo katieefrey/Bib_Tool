@@ -47,6 +47,7 @@ def export(request):
     context = {
         "closed":  closed,
         "newbibs" : newbibs,
+        "numnew" : len(newbibs),
         "err" : "",
     }
 
