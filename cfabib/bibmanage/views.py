@@ -42,8 +42,6 @@ def batch(request):
     closed = Batch.objects.filter(bibgroup=bibgroup,closed=True)
 
     newbibs = Article.objects.filter(status_id=1,batch_id=None)
-    for x in newbibs:
-        print (x.bibcode)
     
     context = {
         "closed":  closed,
@@ -100,12 +98,7 @@ def viewbatch(request,batchid):
         return HttpResponseRedirect(reverse("batch"))
 
 
-
 def export(request):
-
-    batchid = request.POST["batchid"]
-    print(batchid)
-
     bibs = Article.objects.filter(batch_id=batchid)
 
     # Create the HttpResponse object with the appropriate CSV header.
@@ -119,6 +112,74 @@ def export(request):
 
     return response
 
+
+def close_batch(request):
+    print("does this work?")
+
+    batchid = request.POST["batchid"]
+
+    curbatch = Batch.objects.get(id=batchid)
+
+    curbatch.closed = True
+
+    curbatch.save()
+
+    #url = reverse('batch', kwargs={'batchid': batchid})
+    #return HttpResponseRedirect(url)
+
+    return HttpResponseRedirect('batch/%s' % batchid)
+    #return HttpResponseRedirect(reverse("batch"))
+
+def post_openbatch(request):
+
+    #if they are NOT loggedin...
+    if not request.user.is_authenticated:
+        context = {
+            "state": "home"
+            }
+        return render(request, "bibtool/index.html", context)
+    
+    #otherwise, if they are logged in...
+    username = request.user
+    bibgroup = username.bibgroup
+
+    # try to get an existing open batch...
+    try:
+        curopen = Batch.objects.get(bibgroup=bibgroup, closed=False)
+
+    # if none found, then create a new one
+    except Batch.DoesNotExist:
+
+        created = Batch.objects.create(bibgroup=bibgroup, closed=False)
+
+    # go back to the batch page
+    return HttpResponseRedirect(reverse("batch"))
+
+
+
+def post_addtobatch(request):
+
+    #if they are NOT loggedin...
+    if not request.user.is_authenticated:
+        context = {
+            "state": "home"
+            }
+        return render(request, "bibtool/index.html", context)
+    
+    #otherwise, if they are logged in...
+    username = request.user
+    bibgroup = username.bibgroup
+
+    newbibcodes = request.POST.getlist('bibcodes')
+    batchid = request.POST["batchid"]
+
+    for bibid in newbibcodes:
+        curbib = Article.objects.get(id=bibid)
+        curbib.batch_id = batchid
+        curbib.save()
+
+    # go back to the batch page
+    return HttpResponseRedirect(reverse("batch"))
 
 def add(request):
     #if they are NOT loggedin...

@@ -30,14 +30,20 @@
             <b>Open Batch:</b><br/>
             {% if openbatch != None %}
             {{num}} articles in your current open batch<br/><br/>
-            <button type="button" class="btn btn-primary">Export & Close Batch</button>
+            <form action="{% url 'close_batch' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="batchid" value="{{openbatch.id}}">
+                <button type="submit" class="btn btn-primary">Close Batch</button>
+            </form>
 
             {% else %}
                 You do not have an open batch!<br/><br/>
-                <button type="button" class="btn btn-success">Open new batch</button>
+                <form action="{% url 'post_openbatch' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">Open new batch</button>
+                </form>
             {% endif %}
-            <br/><br/><br/>
-            
+            <br/><br/>            
             
                 <b>View all Closed Batches:</b><br/>
                 {% if closed %}
@@ -56,21 +62,27 @@
                 {% if numnew != 0 %}
 
                 <b>{{numnew}}</b> bibcodes waiting to be added to a batch<br/>
-                <form>
-                    <div class="form-group form-check">
-                        <input type="checkbox" class="form-check-input" id="selectall">
-                        <label class="form-check-label" for="selectall">Select All {{numnew}}</label>
+                <form action="{% url 'post_addtobatch' %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <button type="button"  class="btn btn-info" onclick='selectAll()'>Select All</button>
+                        <button type="button" class="btn btn-dark" onclick='UnSelectAll()'>Unselect All</button>
                     </div>
-                    
+
+                    <div class="form-group">
+                        <input type="hidden" name="batchid" value="{{openbatch.id}}">
                         <button type="submit" class="btn btn-primary">Add Bibcodes to Open Batch</button>
                         <br/><br/>
+                    </div>
                     
                     <div class="form-group form-check">
                         {% for code in newbibs %}
-                            <input type="checkbox" class="form-check-input" id="{{code.id}}">
+                            <input type="checkbox" name="bibcodes" class="form-check-input" value="{{code.id}}" id="{{code.id}}">
                             <label class="form-check-label" for="{{code.id}}"><a href="https://ui.adsabs.harvard.edu/abs/{{code.bibcode}}/abstract" target="_blank">{{code.bibcode}}</a></label><br/>
                         {% endfor %}
                     </div>
+
+                    
                 </form>
                 {% endif %}
             {% else %}
@@ -85,5 +97,26 @@
 
     </div>
 </div>
+
+
+
+<script type="text/javascript">
+    function selectAll() {
+        var items = document.getElementsByName('bibcodes');
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].type == 'checkbox')
+                items[i].checked = true;
+        }
+    }
+
+    function UnSelectAll() {
+        var items = document.getElementsByName('bibcodes');
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].type == 'checkbox')
+                items[i].checked = false;
+        }
+    }           
+</script>
+
 
 {% endblock %}
