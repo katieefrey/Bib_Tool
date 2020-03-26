@@ -3,12 +3,44 @@ import sys
 import os
 import csv
 
+import urllib.parse
+import requests
+import json
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE','cfabib.settings')
 
 import django
 django.setup()
 
 from bibtool.models import Article
+
+# arts = Article.objects.filter(title=None, status_id=3)
+
+# devkey = (open('dev_key.txt','r')).read()
+
+# for x in arts:
+#     print(x)
+
+#     url = 'https://api.adsabs.harvard.edu/v1/search/query/?q=bibcode:'+urllib.parse.quote(x.bibcode)+'&fl=title'
+#     print(url)
+    
+#     headers = {'Authorization': 'Bearer '+devkey}
+#     content = requests.get(url, headers=headers)
+#     results = content.json()
+#     k = results['response']['docs'][0]
+
+#     try:
+#         title2 = k['title']
+#         print(title2[0])
+#         x.title = title2[0]
+#         x.save()
+
+#     except KeyError:
+#         pass
+
+
+
+
 
 def add_Article(data1, data2, data3, data4, data5, data6, data7, data8):
     try:

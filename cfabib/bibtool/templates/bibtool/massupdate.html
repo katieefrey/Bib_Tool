@@ -104,10 +104,10 @@
                                 {% if x.created|date:'Y-m-d H:i:s' == x.modified|date:'Y-m-d H:i:s' %}
                                     <tr>
                                         <td><input type="checkbox" name="bibcode" value="{{x.id}}"></td>
-                                        <td><div class="cont" style="overflow: hidden;width: 100px;-o-text-overflow: ellipsis;text-overflow: ellipsis;white-space: nowrap;"><a href="https://ui.adsabs.harvard.edu/abs/{{x.bibcode}}/abstract" target="_blank">{{x.bibcode}}</a></div></td>
+                                        <td><a href="https://ui.adsabs.harvard.edu/abs/{{x.bibcode}}/abstract" target="_blank">{{x.bibcode|truncatechars:10}}</a><br/>{{x.title|truncatechars:10}}</td>
                                         <td>{{x.guess}}</td>
                                         <td>{{x.query}}</td>
-                                        <td>{{x.affils}}</td>
+                                        <td>{{x.affils|truncatechars:2000 }}</td>
                                         <td>{{x.authnum}}</td>
                                     </tr>
                                 {% endif %}
@@ -175,10 +175,10 @@
                                         </div>
                                     </td>
 
-                                    <td><div class="cont" style="overflow: hidden;width: 100px;-o-text-overflow: ellipsis;text-overflow: ellipsis;white-space: nowrap;"><a href="https://ui.adsabs.harvard.edu/abs/{{x.bibcode}}/abstract" target="_blank">{{x.bibcode}}</a></div></td>
+                                    <td><a href="https://ui.adsabs.harvard.edu/abs/{{x.bibcode}}/abstract" target="_blank">{{x.bibcode|truncatechars:10}}</a><br/>{{x.title|truncatechars:10}}</td>
                                     <td>{{x.guess}}</td>
                                     <td>{{x.query}}</td>
-                                    <td>{{x.affils}}</td>
+                                    <td>{{x.affils|truncatechars:2000 }}</td>
                                     <td>{{x.authnum}}</td>  
                                     <td>{{x.modified}}</td>
                                 </tr>
