@@ -129,6 +129,7 @@ def close_batch(request):
 
     return HttpResponseRedirect('batch/%s' % batchid)
     #return HttpResponseRedirect(reverse("batch"))
+    # http://127.0.0.1:8000/bibmanage/batch/2
 
 def post_openbatch(request):
 

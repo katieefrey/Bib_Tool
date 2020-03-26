@@ -53,20 +53,23 @@ excluded_volumes = ["prop",".tmp"]
 devkey = (open('dev_key.txt','r')).read()
 
 authorlist = (open('author_list.txt','r')).read()
-#authorlist3 = (open('author_list-3.txt','r')).read()
+authorlist1 = (open('author_list-1.txt','r')).read()
+authorlist2 = (open('author_list-2.txt','r')).read()
 incafflist = (open('inc_aff_list.txt','r')).read()
 
 
 inc_aff_list = incafflist.splitlines()
 auth_list = authorlist.splitlines()
+auth_list1 = authorlist1.splitlines()
+auth_list2 = authorlist2.splitlines()
 #auth_list3 = authorlist3.splitlines()
 
 url = 'https://api.adsabs.harvard.edu/v1/search/query/?q='
 
 
-def add_Article(data1, data2, data3, data4, data5, data6, data7, data8):
+def add_Article(data1, data2, data3, data4, data5, data6, data7, data8, data9):
     try:
-        d, created = Article.objects.get_or_create(bibcode=data1, guess_id=data2, query=data3, affils=data4, adminbibgroup_id=data5, authnum=data6, status_id=data7, inst_id=data8)
+        d, created = Article.objects.get_or_create(bibcode=data1, guess_id=data2, query=data3, affils=data4, adminbibgroup_id=data5, authnum=data6, status_id=data7, inst_id=data8, title=data9)
         return d
 
     except django.db.utils.IntegrityError:
@@ -93,7 +96,7 @@ def adsquery(qtype,query,daterange,devkey):
     startnum = 0
     for i in range (0,int(loop+1)):
 
-        q = qtype+':%22'+ urllib.parse.quote(query) + '%22%20pubdate:%5B' + daterange + '%5D' + '&fl=bibcode,author,aff,bibgroup&rows='+str(rows)+'&start='+str(startnum)    
+        q = qtype+':%22'+ urllib.parse.quote(query) + '%22%20pubdate:%5B' + daterange + '%5D' + '&fl=bibcode,author,aff,bibgroup,title&rows='+str(rows)+'&start='+str(startnum)    
         
         print (url + q)
 
@@ -139,6 +142,13 @@ def adsquery(qtype,query,daterange,devkey):
                         except KeyError:
                             auth = []
                             num_auth = "0"
+
+                        try:
+                            title = x['title']
+                            titleclean = (('|').join(title))
+                        except KeyError:
+                            titleclean = ''
+
 
                         try:
                             aff = x['aff']
@@ -205,7 +215,7 @@ def adsquery(qtype,query,daterange,devkey):
 
                             aff_list = affclean
 
-                        add_Article(bibcode, guess, query, aff_list, 1, num_auth, 3, 4)
+                        add_Article(bibcode, guess, query, aff_list, 1, num_auth, 3, 4, titleclean)
                         # status 3 = maybe
                         # inst 4 = unknown
 
@@ -215,11 +225,17 @@ def adsquery(qtype,query,daterange,devkey):
 
 if __name__ == "__main__":
 
-    for x in inc_aff_list:
-        adsquery("aff",x,pubdate,devkey)
+    # for x in inc_aff_list:
+    #     adsquery("aff",x,pubdate,devkey)
 
     # for x in auth_list:
     #     adsquery("author",x,pubdate,devkey)
+
+    for x in auth_list1:
+        adsquery("author",x,pubdate,devkey)
+
+    for x in auth_list2:
+        adsquery("author",x,pubdate,devkey)
 
 
     print ("finished!")

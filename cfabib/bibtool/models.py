@@ -28,6 +28,7 @@ class Guess(models.Model):
 
 class Article(models.Model):
     bibcode = models.CharField(max_length=19, unique=True)
+    title = models.CharField(max_length=250, null=True, blank=True)
     adminbibgroup = models.ForeignKey(Bibgroup, on_delete=models.CASCADE)
     #bibgroupcheck = models.ForeignKey(Bibgroup, on_delete=models.CASCADE)
     guess = models.ForeignKey(Guess, on_delete=models.CASCADE)
