@@ -40,7 +40,6 @@ ALLOWED_HOSTS = ['bibtool.wolba.ch' , 'www.bibtool.wolba.ch', '127.0.0.1']
 INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'bibtool.apps.BibtoolConfig',
-    'bibsearch.apps.BibsearchConfig',
     'bibmanage.apps.BibmanageConfig',
     'django.contrib.admin',
     'django.contrib.auth',

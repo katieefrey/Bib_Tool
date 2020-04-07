@@ -99,6 +99,7 @@ def viewbatch(request,batchid):
 
 
 def export(request):
+    batchid = request.POST["batchid"]
     bibs = Article.objects.filter(batch_id=batchid)
 
     # Create the HttpResponse object with the appropriate CSV header.
