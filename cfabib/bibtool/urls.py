@@ -8,6 +8,8 @@ urlpatterns = [
     path("login", views.login_form, name="login_form"),
     path("login_view", views.login_view, name="login_view"),
     path("logout", views.logout_view, name="logout_view"),
+    path("account", views.account, name="account"),
+    path("account/<int:year>/<int:month>/<int:day>", views.history, name="history"),
     #edit entries
     path('batch', views.batch, name='batch'),
     path('massupdate/<int:year>/<int:month>', views.massupdate, name='massupdate'),

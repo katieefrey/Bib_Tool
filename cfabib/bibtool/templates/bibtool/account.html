@@ -1,0 +1,65 @@
+{% extends "bibtool/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block nav-home %}active{% endblock %}
+
+{% block title %}
+    CfA Bibliography
+{% endblock %}
+
+{% block body %}
+
+
+
+    <div class="container">
+
+        <br/>
+        <h3>Manage Your Account</h3>
+        <br/>
+
+        <div class="row">
+            <div class="col-1">        
+            </div>
+            <div class="col-6">
+
+                {% if error != "" %}
+                <div class="alert alert-danger" role="alert">
+                    {{error | safe}}
+                </div>
+                {% endif %}
+
+                <strong>Name:</strong> {{user.first_name}} {{user.last_name}}
+                <br/>
+                <strong>Bibgroup:</strong> {{user.bibgroup}}
+                <br/><br/>
+
+                {% if update != "" %}
+                <div class="alert alert-success" role="alert">
+                    {{update | safe}}
+                </div>
+                {% endif %}
+                
+                <br/>
+                {% for y in batchlist reversed %}
+                <a href="/account/{{y.day|date:'Y'}}/{{y.day|date:'m'}}/{{y.day|date:'d'}}">{{y.day|date:"F d, Y"}}: {{y.num}}</a>
+                <br/>
+                {% endfor %}
+
+            </div>
+            <div class="col-5">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ pwform | crispy }}
+                    <br/> 
+                    <button type="submit" class="btn btn-primary">Change Password</button>
+                </form>
+            </div>
+
+
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

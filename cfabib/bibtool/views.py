@@ -7,11 +7,14 @@ from datetime import datetime
 from django.db.models import Count, DateTimeField
 from django.db.models.functions import TruncDate, TruncMonth, TruncDay, TruncHour, TruncMinute
 
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+
 import urllib.parse
 import requests
 import time
 
-from .models import Status, Affil, Article
+from .models import Status, Affil, Article, Work
 
 
 def index(request):
@@ -63,6 +66,74 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
+
+
+def account(request):
+    #if they are NOT loggedin...
+    if not request.user.is_authenticated:
+        context = {
+            "state": "home"
+            }
+        return render(request, "bibtool/index.html", context)
+        #return render(request, "search/home.html", context)
+
+    #otherwise, if they are logged in...
+    username = request.user
+    userid = username.id
+
+    context = {
+        "state": "loggedin",
+        "error"  : "",
+        "update" : ""
+        }
+
+    context["user"] = username
+
+    history = Work.objects.filter(username_id=userid).annotate(day=TruncDay('created')).values('day').annotate(c=Count('id'))
+
+    pwform = PasswordChangeForm(request.user)
+
+    context["pwform"] = pwform
+
+    batchlist = []
+    for y in range(0,len(history)):
+        batches = {}
+
+        batches["day"] = (history[y]["day"])
+        batches["num"] = (history[y]["c"])
+
+        print(batches)
+
+        batchlist.append(batches)
+
+    context["batchlist"] = batchlist
+
+    return render(request, "bibtool/account.html", context)
+
+def history(request,year,month,day):
+    #if they are NOT loggedin...
+    if not request.user.is_authenticated:
+        context = {
+            "state": "home"
+            }
+        return render(request, "bibtool/index.html", context)
+        #return render(request, "search/home.html", context)
+
+    #otherwise, if they are logged in...
+    username = request.user
+    userid = username.id
+
+    bibs = Work.objects.filter(created__year=year,created__month=month,created__day=day,username_id=userid)
+
+    context = {
+        "bibs" : bibs,
+        "month": month,
+        "day" : day,
+        "year" : year
+    }
+
+    return render(request, "bibtool/history.html", context)
+
 
 def batch(request):
 
@@ -227,6 +298,9 @@ def post_massupdate(request):
         new.inst_id = cfastatus
         new.save()
 
+        newwork =  Work.objects.create(username_id=userid,bibcode_id=y)
+        newwork.save()
+
     return HttpResponseRedirect(reverse("batch"))
 
 
@@ -259,5 +333,11 @@ def post_update(request):
     new.status_id = bibstatus
     new.inst_id = cfastatus
     new.save()
+
+    username = request.user
+    userid = username.id
+
+    newwork =  Work.objects.create(username_id=userid,bibcode_id=upbib)
+    newwork.save()
 
     return HttpResponseRedirect(reverse("batch"))

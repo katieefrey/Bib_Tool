@@ -11,6 +11,7 @@ class Status(models.Model):
     def __str__(self):
         return f"{self.status}"
 
+
 class Affil(models.Model):
     name = models.CharField(max_length=50)
     username = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
@@ -19,12 +20,14 @@ class Affil(models.Model):
     def __str__(self):
         return f"{self.name}"
 
+
 class Guess(models.Model):
     guess = models.CharField(max_length=50)
     # likely, review, reivew-visiting, review-nonSAO, review-nonCfA, doubtful
 
     def __str__(self):
         return f"{self.guess}"
+
 
 class Article(models.Model):
     bibcode = models.CharField(max_length=19, unique=True)
@@ -45,3 +48,10 @@ class Article(models.Model):
         return f"{self.bibcode} {self.status} {self.inst}"
 
 
+class Work(models.Model):
+    username = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    bibcode = models.ForeignKey(Article, on_delete=models.CASCADE, null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.username} {self.bibcode}"
