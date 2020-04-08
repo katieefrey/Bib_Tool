@@ -90,7 +90,7 @@
                                     <td><a href="https://ui.adsabs.harvard.edu/abs/{{x.bibcode}}/abstract" target="_blank">{{x.bibcode|truncatechars:10}}</a><br/>{{x.title|truncatechars:10}}</td>
                                     <td>{{x.guess}}</td>
                                     <td>{{x.query}}</td>
-                                    <td>{{x.affils|truncatechars:2000 }}</td>
+                                    <td>{{x.affils|truncatechars:1990 }}{% if x.affils|length > 1990 %} <strong>(truncated)</strong>{% endif %}</td>
                                     <td>{{x.authnum}}</td> 
                                     
                                 </tr>
