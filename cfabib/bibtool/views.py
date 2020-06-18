@@ -147,10 +147,13 @@ def batch(request):
     username = request.user
     bibgroup = username.bibgroup
 
+    # dates and totals
     dates = Article.objects.filter(adminbibgroup=bibgroup).annotate(month=TruncMonth('created')).values('month').annotate(c=Count('id'))
 
+    # dates and not mods
     notmod = Article.objects.filter(status_id=3,adminbibgroup=bibgroup).annotate(month=TruncMonth('created')).values('month').annotate(c=Count('id'))
 
+    # dates and unknowns
     notknown = Article.objects.filter(inst_id=4,adminbibgroup=bibgroup).annotate(month=TruncMonth('created')).values('month').annotate(c=Count('id'))
 
     batchlist = []
@@ -159,21 +162,33 @@ def batch(request):
         batches = {}
 
         batches["month"] = (dates[y]["month"])
-
-        try:
-            batches["notmod"] = (notmod[y]["c"])
-        except IndexError:
-            batches["notmod"] = 0
-        try:            
-            batches["notknown"] = (notknown[y]["c"])
-        except IndexError:
-            batches["notknown"] = 0
-
         batches["total"] = (dates[y]["c"])
+
+        notmodflag = 0
+
+        for x in notmod:
+            if x["month"] == dates[y]["month"]:
+                batches["notmod"] = (x["c"])
+                notmodflag = 1
+
+        if notmodflag == 0:
+            batches["notmod"] = 0
+
+
+        notknownflag = 0
+
+        for x in notknown:
+            if x["month"] == dates[y]["month"]:
+                batches["notknown"] = (x["c"])
+                notknownflag = 1
+
+        if notknownflag == 0:
+            batches["notknown"] = 0
 
         batchlist.append(batches)
 
-
+    print("batchlist")
+    print (batchlist)
     context = {
         "batches": batchlist
         }

@@ -24,3 +24,6 @@ bibhelper.py
 importdata-old.py
 
 cfabib/cfabib/secrets.py
+cfabib/*.csv
+cfabib/*.xlsx
+cfabib/doubelcheck.py
