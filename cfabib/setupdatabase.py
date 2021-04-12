@@ -11,8 +11,14 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE','cfabib.settings')
 import django
 django.setup()
 
+from django.conf import settings
+
 from bibtool.models import Status, Affil, Guess
 from bibmanage.models import Bibgroup, Batch, Criteria
+
+print (settings.DATABASES)
+
+cont = input("Continue?")
 
 def add_Status(data1):
     d, created = Status.objects.get_or_create(status=data1)
@@ -44,7 +50,7 @@ def populate():
 
     add_Affil("HCO")
     add_Affil("SAO")
-    add_Affil("Both HCO and SAO")
+    add_Affil("both HCO and SAO")
     add_Affil("unknown")
     add_Affil("neither")
     add_Affil("either HCO or SAO")

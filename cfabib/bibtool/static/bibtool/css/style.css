@@ -29,7 +29,7 @@ thead.massupdate th {
     top: 8em; }
 
 thead.update th  {
-    position: sticky;
+    /*position: sticky;*/
     top: 4em; }
 
 #bibliography {
@@ -42,23 +42,31 @@ thead.update th  {
 }
 
 
-#bibliography td, #bibliography th {
+#bibliography td {
      border: 1px solid #ddd;
      padding: 8px;
 }
+
+#auhtlist td {
+     border: 1px solid #000000;
+     padding: 8px;
 }
 
-#bibliography tr:nth-child(even){
-    background-color: #f2f2f2;
+#bibliography th {
+     border: 1px solid #ddd;
 }
+
+/*#bibliography tr:nth-child(even){
+    background-color: #f2f2f2;
+}*/
 
 #bibliography tr:hover {
     background-color: #ddd;
 }
 
 #bibliography th {
-     padding-top: 12px;
-     padding-bottom: 12px;
+/*     padding-top: 12px;
+     padding-bottom: 12px;*/
      text-align: center;
      background-color: #283266;
     /* For browsers that do not support gradients */
@@ -66,6 +74,20 @@ thead.update th  {
     /* Standard syntax (must be last) */
      background-attachment:fixed;
      color: white;
+}
+
+label {
+    display: inline;
+    margin-bottom: .5rem;
+}
+
+.card-body {
+    padding: 0 1.25rem;
+}
+
+div.records {
+    border-bottom:2px solid #514d4d;
+    padding: 20px 10px
 }
 
 /*

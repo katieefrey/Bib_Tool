@@ -27,3 +27,13 @@ cfabib/cfabib/secrets.py
 cfabib/*.csv
 cfabib/*.xlsx
 cfabib/doubelcheck.py
+
+public/*
+
+old migrations/*
+
+cfabib/old author files/*
+
+cfabib/crossref.py
+cfabib/examin*
+cfabib/find_bibcode*

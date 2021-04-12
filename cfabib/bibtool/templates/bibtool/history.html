@@ -30,10 +30,10 @@
                 <strong>Bibgroup:</strong> {{user.bibgroup}}
                 <br/><br/>
 
-                {{day}}/{{month}}/{{year}}
+                <strong>{{day}}/{{month}}/{{year}}</strong>
                 <br/>
                 {% for u in bibs %}
-                {{u.bibcode.bibcode}}<br/>
+                {{u.bibcode.bibcode}}{{u.author.bibcode}}<br/>
                 {% endfor %}
 
 

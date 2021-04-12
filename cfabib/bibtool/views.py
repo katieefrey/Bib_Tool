@@ -14,7 +14,7 @@ import urllib.parse
 import requests
 import time
 
-from .models import Status, Affil, Article, Work
+from .models import Status, Affil, Article, Work, NewArticle, Author
 
 
 def index(request):
@@ -27,7 +27,6 @@ def index(request):
 
     #otherwise, if they are logged in...
     username = request.user
-    userid = username.id
 
     context = {
         "state": "loggedin",
@@ -101,9 +100,6 @@ def account(request):
 
         batches["day"] = (history[y]["day"])
         batches["num"] = (history[y]["c"])
-
-        print(batches)
-
         batchlist.append(batches)
 
     context["batchlist"] = batchlist
@@ -120,8 +116,7 @@ def history(request,year,month,day):
         #return render(request, "search/home.html", context)
 
     #otherwise, if they are logged in...
-    username = request.user
-    userid = username.id
+    userid = request.user.id
 
     bibs = Work.objects.filter(created__year=year,created__month=month,created__day=day,username_id=userid)
 
@@ -144,17 +139,19 @@ def batch(request):
             }
         return render(request, "bibtool/index.html", context)
 
-    username = request.user
-    bibgroup = username.bibgroup
+    bibgroup = request.user.bibgroup
 
     # dates and totals
-    dates = Article.objects.filter(adminbibgroup=bibgroup).annotate(month=TruncMonth('created')).values('month').annotate(c=Count('id'))
+    dates = Author.objects.filter(adminbibgroup=bibgroup).annotate(month=TruncMonth('created')).values('month').annotate(c=Count('id'))
 
     # dates and not mods
-    notmod = Article.objects.filter(status_id=3,adminbibgroup=bibgroup).annotate(month=TruncMonth('created')).values('month').annotate(c=Count('id'))
+    notmod = Author.objects.filter(status_id=3,adminbibgroup=bibgroup).annotate(month=TruncMonth('created')).values('month').annotate(c=Count('id'))
 
     # dates and unknowns
-    notknown = Article.objects.filter(inst_id=4,adminbibgroup=bibgroup).annotate(month=TruncMonth('created')).values('month').annotate(c=Count('id'))
+    notknown = Author.objects.filter(inst_id=4,adminbibgroup=bibgroup,autoclass=False).annotate(month=TruncMonth('created')).values('month').annotate(c=Count('id'))
+
+    # dates and unverified
+    notver = Author.objects.filter(autoclass=True,verified=False,adminbibgroup=bibgroup).annotate(month=TruncMonth('created')).values('month').annotate(c=Count('id'))
 
     batchlist = []
 
@@ -164,38 +161,71 @@ def batch(request):
         batches["month"] = (dates[y]["month"])
         batches["total"] = (dates[y]["c"])
 
-        notmodflag = 0
-
+        batches["notmod"] = 0
         for x in notmod:
             if x["month"] == dates[y]["month"]:
                 batches["notmod"] = (x["c"])
-                notmodflag = 1
 
-        if notmodflag == 0:
-            batches["notmod"] = 0
+        batches["notver"] = 0
+        for x in notver:
+            if x["month"] == dates[y]["month"]:
+                batches["notver"] = (x["c"])
 
-
-        notknownflag = 0
-
+        batches["notknown"] = 0
         for x in notknown:
             if x["month"] == dates[y]["month"]:
-                batches["notknown"] = (x["c"])
-                notknownflag = 1
-
-        if notknownflag == 0:
-            batches["notknown"] = 0
+                batches["notknown"] = (x["c"])            
 
         batchlist.append(batches)
 
-    print("batchlist")
-    print (batchlist)
+    batchlist.reverse()
+
+    ## Legacy Support
+
+    # dates and totals
+    dates1 = Article.objects.filter(adminbibgroup=bibgroup).annotate(month=TruncMonth('created')).values('month').annotate(c=Count('id'))
+
+    # dates and not mods
+    notmod1 = Article.objects.filter(status_id=3,adminbibgroup=bibgroup).annotate(month=TruncMonth('created')).values('month').annotate(c=Count('id'))
+
+    # dates and unknowns
+    notknown1 = Article.objects.filter(inst_id=4,adminbibgroup=bibgroup).annotate(month=TruncMonth('created')).values('month').annotate(c=Count('id'))
+
+    batchlist1 = []
+
+    for y in range(0,len(dates1)):
+        batches = {}
+
+        batches["month"] = (dates1[y]["month"])
+        batches["total1"] = (dates1[y]["c"])
+
+        batches["notmod1"] = 0
+        for x in notmod1:
+            if x["month"] == dates1[y]["month"]:
+                batches["notmod1"] = (x["c"])
+
+        batches["notknown1"] = 0
+        for x in notknown1:
+            if x["month"] == dates1[y]["month"]:
+                batches["notknown1"] = (x["c"])
+
+        batchlist1.append(batches)
+    
+    batchlist1.reverse()
+
+    ## end legacy support
+
     context = {
-        "batches": batchlist
+        "batches": batchlist,
+        "batches1": batchlist1 # legacy batchlist
         }
 
     return render(request, "bibtool/batch.html", context)
 
-def massupdate(request,year,month):
+
+
+
+def nameupdate(request,year, month):
 
     #if they are NOT loggedin...
     if not request.user.is_authenticated:
@@ -204,31 +234,25 @@ def massupdate(request,year,month):
             }
         return render(request, "bibtool/index.html", context)
 
-    username = request.user
-    bibgroup = username.bibgroup
+    bibgroup = request.user.bibgroup
 
-    articles = Article.objects.filter(created__year=year,created__month=month,adminbibgroup=bibgroup)
-    allmod = []
-    allnot = []
-    
-    for y in articles:
-        if y.created.strftime('%Y %m %d %H %M') == y.modified.strftime('%Y %m %d %H %M'):
-            allnot.append(y)
-        else:
-            allmod.append(y)
+    # unedited records
+    authors = Author.objects.filter(created__year=year,created__month=month,adminbibgroup=bibgroup, autoclass=False, edited=False).order_by('bibcode')
 
-    numod = len(allmod)
-    numnot = len(allnot)
+    # edited records
+    edauthors = Author.objects.filter(created__year=year,created__month=month,adminbibgroup=bibgroup, autoclass=False, edited=True).order_by('bibcode')
         
     context = {
-        "articles": articles,
-        "numod": numod,
-        "numnot": numnot
+        "authors": authors,
+        "edauthors": edauthors,
+        "numod": len(edauthors),
+        "numnot": len(authors),
         }
 
-    return render(request, "bibtool/massupdate.html", context)
+    return render(request, "bibtool/nameupdate.html", context)
 
-def update(request,year, month):
+
+def nameverify(request,year, month):
 
     #if they are NOT loggedin...
     if not request.user.is_authenticated:
@@ -237,8 +261,167 @@ def update(request,year, month):
             }
         return render(request, "bibtool/index.html", context)
 
-    username = request.user
-    bibgroup = username.bibgroup
+    bibgroup = request.user.bibgroup
+
+    # unverified records
+    notv = Author.objects.filter(created__year=year,created__month=month,adminbibgroup=bibgroup, autoclass=True, verified=False).order_by('bibcode')
+
+    # verified records
+    ver = Author.objects.filter(created__year=year,created__month=month,adminbibgroup=bibgroup, autoclass=True, verified=True).order_by('bibcode')
+        
+    context = {
+        "ver": ver,
+        "notv": notv,
+        "numver": len(ver),
+        "numnotv": len(notv),
+        }
+
+    return render(request, "bibtool/nameverify.html", context)
+
+
+def nameunknown(request,year, month):
+
+    #if they are NOT loggedin...
+    if not request.user.is_authenticated:
+        context = {
+            "state": "home"
+            }
+        return render(request, "bibtool/index.html", context)
+
+    bibgroup = request.user.bibgroup
+    
+    authors = Author.objects.filter(created__year=year,created__month=month,inst_id=4,autoclass=False,adminbibgroup=bibgroup)
+    numunknown = len(authors)
+
+    totart = Author.objects.filter(created__year=year,created__month=month,autoclass=False,adminbibgroup=bibgroup)
+
+    numtotal = len(totart)
+    numknown = numtotal-numunknown
+
+    context = {
+        "authors": authors,
+        "numunknown": numunknown,
+        "numknown": numknown
+    }
+    return render(request, "bibtool/nameunknown.html", context)
+
+
+def post_nameupdate(request):
+
+    upauthid = request.POST.getlist("authid[]")
+    art = request.POST["art"]
+    cfainst = request.POST["cfainst"]
+
+    # if cfainst is 4, that means this is an unknown record
+    if int(cfainst) == 4:
+        # status changed to "doubtful"
+        bibstatus = 4
+    # if the cfainst is 5, that means this is NOT a CfA record
+    elif int(cfainst) == 5:
+        # status changed to "no"
+        bibstatus = 2
+    # every other status means that this is a CfA record
+    else:
+        # status changed to "yes"
+        bibstatus = 1
+
+    for x in upauthid:
+
+        new = Author.objects.get(id=x)
+
+        new.status_id = bibstatus
+        new.inst_id = cfainst
+        new.edited = True # mark as edited
+        new.save()
+
+        username = request.user
+        userid = username.id
+
+        newwork = Work.objects.create(username_id=userid,author_id=x)
+        newwork.save()
+
+    arts = Author.objects.filter(bibcode=art)
+
+    flag = 0
+    for y in arts:
+        if y.status.id == 3 or y.status.id == 2 or y.edited == False:
+            flag = 1
+
+    if flag == 0:
+        thisart = NewArticle.objects.get(id=art)
+        thisart.completed = True
+        thisart.save()
+
+    return HttpResponseRedirect(reverse("batch"))
+
+
+def post_nameverify(request):
+
+    upauthid = request.POST.getlist("authid[]")
+    art = request.POST["art"]
+    verify = request.POST["verify"]
+
+    if verify == str(1):
+        ver = True
+    else:
+        ver = False
+
+    for x in upauthid:
+
+        new = Author.objects.get(id=x)
+
+        new.verified = ver
+        new.edited = ver # mark as edited if true, not edited if false
+        # "not edited" bumps it to the main "author update" section
+
+        if ver == False:
+            new.inst_id = 4
+            new.status_id = 3
+            new.autoclass = False
+            thisart = NewArticle.objects.get(id=art)
+            thisart.completed = False
+            thisart.save()
+
+        #print (ver)
+        new.save()
+
+        username = request.user
+        userid = username.id
+
+        newwork = Work.objects.create(username_id=userid,author_id=x)
+        newwork.save()
+
+    arts = Author.objects.filter(bibcode=art)
+
+    flag = 0
+    for y in arts:
+        if y.status.id == 3 or y.status.id == 2 or y.edited == False:
+            flag = 1
+
+    if flag == 0:
+        thisart = NewArticle.objects.get(id=art)
+        thisart.completed = True
+        thisart.save()
+
+    return HttpResponseRedirect(reverse("batch"))
+
+
+
+
+## Legacy Article BibTool System
+# needed for all work prior to Feb 2021
+# Do not edit!
+
+def update(request, year, month):
+
+    #if they are NOT loggedin...
+    if not request.user.is_authenticated:
+        context = {
+            "state": "home"
+            }
+        return render(request, "bibtool/index.html", context)
+
+    bibgroup = request.user.bibgroup
 
     articles = Article.objects.filter(created__year=year,created__month=month,adminbibgroup=bibgroup)
     allmod = []
@@ -261,7 +444,6 @@ def update(request,year, month):
 
     return render(request, "bibtool/update.html", context)
 
-
 def unknown(request,year, month):
 
     #if they are NOT loggedin...
@@ -271,8 +453,7 @@ def unknown(request,year, month):
             }
         return render(request, "bibtool/index.html", context)
 
-    username = request.user
-    bibgroup = username.bibgroup
+    bibgroup = request.user.bibgroup
     
     articles = Article.objects.filter(created__year=year,created__month=month,inst_id=4,adminbibgroup=bibgroup)
     numunknown = len(articles)
@@ -280,9 +461,6 @@ def unknown(request,year, month):
     totart = Article.objects.filter(created__year=year,created__month=month,adminbibgroup=bibgroup)
 
     numtotal = len(totart)
-
-    #print (numunknown)
-    #print (numtotal)
     numknown = numtotal-numunknown
 
     context = {
@@ -291,33 +469,6 @@ def unknown(request,year, month):
         "numknown": numknown
     }
     return render(request, "bibtool/unknown.html", context)
-
-def post_massupdate(request):
-
-    updatelist = request.POST.getlist('bibcode')
-    cfastatus = request.POST["cfastatus"]
-
-    # if the cfastatus is 5, that means this is NOT a CfA record
-    if int(cfastatus) == 5:
-        bibstatus = 2
-    elif int(cfastatus) == 4:
-        bibstatus = 3
-    # every other status means that this is a CfA record
-    else:
-        bibstatus = 1
-
-    for y in updatelist:
-
-        new = Article.objects.get(id=y)
-        new.status_id = bibstatus
-        new.inst_id = cfastatus
-        new.save()
-
-        newwork =  Work.objects.create(username_id=userid,bibcode_id=y)
-        newwork.save()
-
-    return HttpResponseRedirect(reverse("batch"))
-
 
 def post_update(request):
 
@@ -349,8 +500,7 @@ def post_update(request):
     new.inst_id = cfastatus
     new.save()
 
-    username = request.user
-    userid = username.id
+    userid = request.user.id
 
     newwork =  Work.objects.create(username_id=userid,bibcode_id=upbib)
     newwork.save()

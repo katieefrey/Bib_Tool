@@ -14,30 +14,41 @@
 <div class="container">
     <div class="row">
         <div class="col"> 
-
-        
-            <br/>
-
+            <br/><br/>
             <table id="bibliography">
-                    <tr>
-                        <th>Month Added</th>
-                        <th>Update Interface</th>
-                        <th>Unmodified</th>
-                        <th>Unknown</th>
-                        <th>Total Number</th>
-                        
-                    </tr>
+                <tr>
+                    <th>Month Added</th>
+                    <th>Update Interface</th>
+                    <th>Unmodified</th>
+                    <th>Unknown</th>
+                    <th>Unverified</th>
+                    <th>Total Number</th>
+                </tr>
 
                 {% for y in batches %}
                     <tr>
                         <td>{{y.month|date:"F Y"}}</td>
-                        <td>{% if y.notmod != 0 %}<a href="{% url 'massupdate' y.month|date:'Y' y.month|date:'m' %}">Mass Update</a> | {% endif %}<a href="{% url 'update' y.month|date:'Y' y.month|date:'m' %}">Update</a>{% if y.notknown != 0 %} | <a href="{% url 'unknown' y.month|date:'Y' y.month|date:'m' %}">All Unknowns</a>{% endif %}</td>
+                        <td><a href="{% url 'nameupdate' y.month|date:'Y' y.month|date:'m' %}">Author Update</a>{% if y.notknown != 0 %} | <a href="{% url 'nameunknown' y.month|date:'Y' y.month|date:'m' %}">All Unknowns</a>{% endif %} | <a href="{% url 'nameverify' y.month|date:'Y' y.month|date:'m' %}">Unverified</a></td>
                         <td>{{y.notmod}}</td>
                         <td>{{y.notknown}}</td>
+                        <td>{{y.notver}}</td>
                         <td>{{y.total}}</td>
                     </tr>
-                <br/>
+
                 {% endfor %}
+
+                {% for z in batches1 %}
+                    <tr>
+                        <td>{{z.month|date:"F Y"}}</td>
+                        <td><a href="{% url 'update' z.month|date:'Y' z.month|date:'m' %}">Update</a>{% if y.notknown != 0 %} | <a href="{% url 'unknown' z.month|date:'Y' z.month|date:'m' %}">All Unknowns</a>{% endif %}</td>
+                        <td>{{z.notmod1}}</td>
+                        <td>{{z.notknown1}}</td>
+                        <td> </td>
+                        <td>{{z.total1}}</td>
+                    </tr>
+
+                {% endfor %}
+
             </table>
 
         </div>

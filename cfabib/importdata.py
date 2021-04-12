@@ -11,8 +11,11 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE','cfabib.settings')
 import django
 django.setup()
 
-from bibtool.models import Article
+from django.conf import settings
 
+from bibtool.models import Article, Author, NewArticle
+
+print (settings.DATABASES)
 
 start = input("Query Start Date (YYYY or YYYY-MM): ")
 end = input("Query End Date (YYYY or YYYY-MM): ")
@@ -34,7 +37,7 @@ bibgroup = "CfA"
 ######### Excluded Strings, Edit with Caution #########
 
 # exclude the following bibstems, each must be exactly 5 characters long
-excluded_bibstems = ["arXiv","ATel1","ATel.","yCat.","MPEC.","sptz.","Cosp.","DPS..","IAUC.","SPD..","AGUFM","AGUSM","APS..","IAUFM","AAS..","HEAD.","DDA.."]
+excluded_bibstems = ["arXiv","ATel1","ATel.","yCat.","MPEC.","sptz.","Cosp.","DPS..","IAUC.","SPD..","AGUFM","AGUSM","APS..","IAUFM","AAS..","HEAD.","DDA..","zndo."]
 # Verified bibstem codes to INCLUDE
 # (i.e. do NOT write these into the above list)
 # CBET.
@@ -52,28 +55,45 @@ excluded_volumes = ["prop",".tmp"]
 
 devkey = (open('dev_key.txt','r')).read()
 
-authorlist = (open('author_list.txt','r')).read()
-authorlist1 = (open('author_list-1.txt','r')).read()
-authorlist2 = (open('author_list-2.txt','r')).read()
+# included affiliations
 incafflist = (open('inc_aff_list.txt','r')).read()
-
-
 inc_aff_list = incafflist.splitlines()
+
+# author query list
+#authorlist = (open('author_list.txt','r')).read()
+#auth_list = authorlist.splitlines()
+
+# author query list
+authorlist = (open('author_list_sao_recent-1.txt','r')).read()
 auth_list = authorlist.splitlines()
-auth_list1 = authorlist1.splitlines()
-auth_list2 = authorlist2.splitlines()
-#auth_list3 = authorlist3.splitlines()
+
+# do not SEARCH on the broad or simple aff list, but use to narrow down author name results
+broadafflist = (open('broad_aff_list.txt','r')).read()
+broad_aff_list = broadafflist.splitlines()
+
+simpleafflist = (open('simple_aff_list.txt','r')).read()
+simple_aff_list = simpleafflist.splitlines()
 
 url = 'https://api.adsabs.harvard.edu/v1/search/query/?q='
 
 
-def add_Article(data1, data2, data3, data4, data5, data6, data7, data8, data9):
+def add_NewArticle(data1, data2, data3, data4):
     try:
-        d, created = Article.objects.get_or_create(bibcode=data1, guess_id=data2, query=data3, affils=data4, adminbibgroup_id=data5, authnum=data6, status_id=data7, inst_id=data8, title=data9)
+        d, created = NewArticle.objects.get_or_create(bibcode=data1, title=data2, adminbibgroup_id=data3, authnum=data4)
         return d
 
     except django.db.utils.IntegrityError:
-        print("already in database")
+        print ("DID YOU SET UP THE DATABSES??")
+        print("something went wrong, new article")
+        return
+
+def add_Author(data1, data2, data3, data4, data5, data6, data7, data8, data9):
+    try:
+        d, created = Author.objects.get_or_create(bibcode_id=data1, name=data2, affil=data3, guess_id=data4, query=data5, inst_id=data6, adminbibgroup_id=data7, status_id=data8, autoclass=data9)
+        return d
+
+    except django.db.utils.IntegrityError:
+        print("something went wrong, author")
         return
 
 def getloop(qtype,query,daterange,devkey):
@@ -81,11 +101,12 @@ def getloop(qtype,query,daterange,devkey):
     headers = {'Authorization': 'Bearer '+devkey}
     content = requests.get(url + q, headers=headers)
     results = content.json()
-    #print (results)
+    print (results)
     num = results['response']['numFound']
     return num
 
-def adsquery(qtype,query,daterange,devkey):
+
+def newadsquery(qtype,query,daterange,devkey):
 
     #rows max value is 200
     rows = 100
@@ -96,13 +117,15 @@ def adsquery(qtype,query,daterange,devkey):
     startnum = 0
     for i in range (0,int(loop+1)):
 
-        q = qtype+':%22'+ urllib.parse.quote(query) + '%22%20pubdate:%5B' + daterange + '%5D' + '&fl=bibcode,author,aff,bibgroup,title&rows='+str(rows)+'&start='+str(startnum)    
+        q = qtype+':%22'+ urllib.parse.quote(query) + '%22%20pubdate:%5B' + daterange + '%5D' + '&fl=bibcode,author,aff,bibgroup,database,title&rows='+str(rows)+'&start='+str(startnum)    
         
-        print (url + q)
+        #print (url + q)
+        print (query)
 
         headers = {'Authorization': 'Bearer '+devkey}
         content = requests.get(url + q, headers=headers)
         results = content.json()
+        print (results)
         docs = results['response']['docs']
         
         for x in docs:
@@ -110,6 +133,8 @@ def adsquery(qtype,query,daterange,devkey):
             bibstem = bibcode[4:9]
             volume = bibcode[9:13]
 
+            # if bibstem or volume are in an excluded set,
+            # skip the rest of the function
             if bibstem in excluded_bibstems:
                 pass
 
@@ -123,17 +148,25 @@ def adsquery(qtype,query,daterange,devkey):
                 except KeyError:
                     bibgroupclean = ''
 
+                # if the bibgroup is in the list of bibgroups,
+                # skip the rest of the function
                 if bibgroup in bibgroupclean:
                     pass
 
+                # otherwise! it is time to get to work
                 else:
+                    print (x["database"])
+
+                    if "astronomy" or "physics" in x["database"]:
+                        print ("yes")
+                    else:
+                        print("no")
 
                     try:
-                        Article.objects.get(bibcode=bibcode)
-                        print (bibcode+" already in")
+                        test = Article.objects.get(bibcode=bibcode)
+                        print (bibcode+" already in old system")
                         
                     except Article.DoesNotExist:
-                        print ("adding "+bibcode)
 
                         try:
                             auth = x['author']
@@ -141,11 +174,15 @@ def adsquery(qtype,query,daterange,devkey):
 
                         except KeyError:
                             auth = []
-                            num_auth = "0"
+                            num_auth = "-"
 
                         try:
                             title = x['title']
-                            titleclean = (('|').join(title))
+                            title1 = (('|').join(title))
+                            if len(title1) > 249:
+                                titleclean = title1[0:249]
+                            else:
+                                titleclean = title1
                         except KeyError:
                             titleclean = ''
 
@@ -157,67 +194,115 @@ def adsquery(qtype,query,daterange,devkey):
                             aff = []
                             affclean = ''
 
-                        pairedaff_list = []
+                        try:
+                            NewArticle.objects.get(bibcode=bibcode)
+                            #print (bibcode+" already in")
+                            
+                        except NewArticle.DoesNotExist:
+                            print ("adding "+bibcode)
+                            add_NewArticle(bibcode, titleclean, 1, num_auth)
 
+                        bibsc = NewArticle.objects.get(bibcode=bibcode)
                         guess = 2 # review
                         
                         if qtype == "aff":
                             for y in range(0,len(auth)):
                                 if query in aff[y].lower():
-                                    guess = 1
-                                    pairedaff_list.append(aff[y])
-                                    aff_list = (" | ").join(pairedaff_list)
-                                else:
-                                    pass
+                                    
+                                    if Author.objects.filter(bibcode=bibsc.id, name=auth[y], affil=aff[y],adminbibgroup_id=1).exists():
+                                        #print("author already in, step 1")
+                                        pass
+                                    else:
+                                        #print("adding author")
 
-                            if "Visiting" in affclean:
-                                guess = 3 # review-visiting
-                            else:
-                                pass
+                                        guess = 1 # likely
 
-                            if guess == 2: #review
-                                aff_list = affclean
+                                        if "visiting" in aff[y].lower():
+                                            guess = 3 # review-visiting
 
-                            # if guess == likely
-                            if guess == 1 and aff == "smithsonian":
-                                if "observatory" not in aff_list.lower():
-                                    guess = 4 # review-nonSAO
-                                else:
-                                    pass
+                                        elif "visit" in aff[y].lower():
+                                            guess = 3 # review-visiting
 
-                            elif guess == "Keep" and aff == "cfa":
-                                if "irfu" in aff_list.lower():
-                                    guess = 5 # review-nonCfA
-                                elif "cfa-italia" in aff_list.lower():
-                                    guess = 5 # review-nonCfA
-                                else:
-                                    pass                        
+                                        elif "retired" in aff[y].lower():
+                                            guess = 2 # review-visiting
+            
+                                        if guess == 1 and query == "cfa":
+                                            if "irfu" in aff[y].lower():
+                                                guess = 5 # review-nonCfA
+                                            elif "cfa-italia" in aff[y].lower():
+                                                guess = 5 # review-nonCfA
+                                            elif "cfai" in aff[y].lower():
+                                                guess = 5 # review-nonCfA
+                                            else:
+                                                guess = 2 #review
 
-                            elif guess == 1: # likely
-                                pass
+                                        elif guess == 1 and query == "hco":
+                                            if "Northcott" in aff[y].lower():
+                                                guess = 5 # review-nonCfA
 
-                            else:
-                                pass       
+
+                                        if guess == 1:
+                                            autoclass = True
+                                            status = 1
+                                            inst = 6
+                                        else:
+                                            autoclass = False
+                                            status = 3
+                                            inst = 4
+
+                                        add_Author(bibsc.id, auth[y], aff[y], guess, query, inst, 1, status, autoclass)
+
 
                         elif qtype == "author":
+                            flname = query.split(',')
+                            namei = flname[0]+", "+flname[1][1]
 
-                            boo = 0
+                            for y in range(0,len(auth)):
+                                if namei.lower() in auth[y].lower():
+                                    affs = aff[y].lower()
 
-                            for w in inc_aff_list:
-                                if w in affclean.lower():
-                                    boo = 1
+                                    guess = 6
+                                    autoclass = True
+                                    status = 2
+                                    inst = 5
 
-                            if boo == 0:
-                                guess = 6 # doubtful
+                                    # if something from the broad list is in
+                                    # the affiliation than consider
+                                    for z in broad_aff_list:
+                                        if z in affs:
+                                            guess = 1 # likely
 
-                            elif boo == 1:
-                                guess = 1 #likely
+                                    if guess == 1:
+                                        autoclass = True
+                                        status = 1
+                                        inst = 6
+                                    else:
 
-                            aff_list = affclean
+                                        if affs == '-':
+                                            guess = 2
+                                        else: 
+                                            for z in simple_aff_list:
+                                                if z in affs:
+                                                    guess = 2
+                                        
+                                        if guess == 2:
+                                            autoclass = False
+                                            status = 3
+                                            inst = 4
 
-                        add_Article(bibcode, guess, query, aff_list, 1, num_auth, 3, 4, titleclean)
-                        # status 3 = maybe
-                        # inst 4 = unknown
+                                    if Author.objects.filter(bibcode=bibsc.id, name=auth[y], affil=aff[y],adminbibgroup_id=1).exists():
+                                            #print("author already in, step 2")
+                                            pass
+                                    else:
+                                        # if guess != 0:
+                                        #     print("adding author")
+                                        #     add_Author(bibsc.id, auth[y], aff[y], guess, query, inst, 1, status, autoclass)
+                                        # else:
+                                            
+
+                                        print("adding author")
+                                        add_Author(bibsc.id, auth[y], aff[y], guess, query, inst, 1, status, autoclass)
+                                        # add_Author(bibsc.id, auth[y], aff[y], guess, query, 4, 1, 3)
 
         startnum += rows
     time.sleep(1)
@@ -226,16 +311,9 @@ def adsquery(qtype,query,daterange,devkey):
 if __name__ == "__main__":
 
     # for x in inc_aff_list:
-    #     adsquery("aff",x,pubdate,devkey)
+    #     newadsquery("aff",x,pubdate,devkey)
 
-    # for x in auth_list:
-    #     adsquery("author",x,pubdate,devkey)
-
-    for x in auth_list1:
-        adsquery("author",x,pubdate,devkey)
-
-    for x in auth_list2:
-        adsquery("author",x,pubdate,devkey)
-
+    for x in auth_list:
+        newadsquery("author",x,pubdate,devkey)
 
     print ("finished!")

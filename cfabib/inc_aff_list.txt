@@ -1,7 +1,6 @@
 harvard-smithsonian
 60 garden
 harvard college observatory
-hco
 smithsonian astrophysical observatory
 harvard astronomy
 hscenter for astrophysics
@@ -11,4 +10,13 @@ harvard center for astrophysics
 smithsonian center for astrophysics
 sao center for astrophysics
 harvard &amp; smithsonian
+harvard & smithsonian
+harvard and smithsonian
+itamp
+institute for theoretical atomic, molecular and optical physics
+institute for theory and computation
+department of astronomy, harvard university
+harvard cfa
+chandra x-ray center
 cfa
+hco

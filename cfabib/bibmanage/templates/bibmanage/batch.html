@@ -21,7 +21,6 @@
     </div>
     <div class="row">
         <div class="col-6"> 
-
             {% if err != "" %}
             {{err}}
             <br/><br/>
@@ -58,6 +57,10 @@
         </div>
 
         <div class="col-6">
+
+
+            <br/>
+
             {% if openbatch != None %}
                 {% if numnew != 0 %}
 
@@ -77,7 +80,11 @@
                     
                     <div class="form-group form-check">
                         {% for code in newbibs %}
-                            <input type="checkbox" name="bibcodes" class="form-check-input" value="{{code.id}}" id="{{code.id}}">
+                            <input type="checkbox" name="newbibcodes" class="form-check-input" value="{{code.id}}" id="{{code.id}}">
+                            <label class="form-check-label" for="{{code.id}}"><a href="https://ui.adsabs.harvard.edu/abs/{{code.bibcode}}/abstract" target="_blank">{{code.bibcode}}</a></label><br/>
+                        {% endfor %}
+                        {% for code in oldbibs %}
+                            <input type="checkbox" name="oldbibcodes" class="form-check-input" value="{{code.id}}" id="{{code.id}}">
                             <label class="form-check-label" for="{{code.id}}"><a href="https://ui.adsabs.harvard.edu/abs/{{code.bibcode}}/abstract" target="_blank">{{code.bibcode}}</a></label><br/>
                         {% endfor %}
                     </div>
@@ -102,7 +109,13 @@
 
 <script type="text/javascript">
     function selectAll() {
-        var items = document.getElementsByName('bibcodes');
+        var items = document.getElementsByName('newbibcodes');
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].type == 'checkbox')
+                items[i].checked = true;
+        }
+
+        var items = document.getElementsByName('oldbibcodes');
         for (var i = 0; i < items.length; i++) {
             if (items[i].type == 'checkbox')
                 items[i].checked = true;
@@ -110,7 +123,12 @@
     }
 
     function UnSelectAll() {
-        var items = document.getElementsByName('bibcodes');
+        var items = document.getElementsByName('newbibcodes');
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].type == 'checkbox')
+                items[i].checked = false;
+        }
+        var items = document.getElementsByName('oldbibcodes');
         for (var i = 0; i < items.length; i++) {
             if (items[i].type == 'checkbox')
                 items[i].checked = false;

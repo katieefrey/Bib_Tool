@@ -36,6 +36,15 @@
             </li>
 
             {% if request.user.is_authenticated %}
+            <li class="nav-item dropdown {% block nav-info %}{% endblock %}">
+                <a class="nav-link dropdown-toggle" href="/bibmanage/info" id="navbarDropdown1" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Information
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="/bibmanage/info">Instructions</a>
+                    <a class="dropdown-item" href="/bibmanage/tips">Classification Tips</a>
+                </div>
+            </li>
             <li class="nav-item {% block nav-eval %}{% endblock %}">
                 <a class="nav-link" href="/batch">Evaluate Entries</a>
             </li>
