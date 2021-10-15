@@ -64,7 +64,7 @@ inc_aff_list = incafflist.splitlines()
 #auth_list = authorlist.splitlines()
 
 # author query list
-authorlist = (open('author_list_sao_recent-1.txt','r')).read()
+authorlist = (open('author_list_2021_04_05.txt','r')).read()
 auth_list = authorlist.splitlines()
 
 # do not SEARCH on the broad or simple aff list, but use to narrow down author name results
@@ -125,7 +125,7 @@ def newadsquery(qtype,query,daterange,devkey):
         headers = {'Authorization': 'Bearer '+devkey}
         content = requests.get(url + q, headers=headers)
         results = content.json()
-        print (results)
+        #print (results)
         docs = results['response']['docs']
         
         for x in docs:
@@ -155,12 +155,12 @@ def newadsquery(qtype,query,daterange,devkey):
 
                 # otherwise! it is time to get to work
                 else:
-                    print (x["database"])
+                    # print (x["database"])
 
-                    if "astronomy" or "physics" in x["database"]:
-                        print ("yes")
-                    else:
-                        print("no")
+                    # if "astronomy" or "physics" in x["database"]:
+                    #     print ("yes")
+                    # else:
+                    #     print("no")
 
                     try:
                         test = Article.objects.get(bibcode=bibcode)
@@ -310,8 +310,8 @@ def newadsquery(qtype,query,daterange,devkey):
 
 if __name__ == "__main__":
 
-    # for x in inc_aff_list:
-    #     newadsquery("aff",x,pubdate,devkey)
+    for x in inc_aff_list:
+        newadsquery("aff",x,pubdate,devkey)
 
     for x in auth_list:
         newadsquery("author",x,pubdate,devkey)

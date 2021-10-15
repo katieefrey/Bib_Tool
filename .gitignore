@@ -17,7 +17,7 @@
 /__pycache__/
 
 cfabib/CfA_Bib_Helper.py
-cfabib/*.txt
+*.txt
 cfabib/check.csv
 cfabib/dq.sqlite3
 bibhelper.py
@@ -25,6 +25,7 @@ importdata-old.py
 
 cfabib/cfabib/secrets.py
 cfabib/*.csv
+cfabib/*.txt
 cfabib/*.xlsx
 cfabib/doubelcheck.py
 
