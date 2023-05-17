@@ -229,6 +229,94 @@ def post_addtobatch(request):
     # go back to the batch page
     return HttpResponseRedirect(reverse("batch"))
 
+def checkbib(request):
+
+    #if they are NOT loggedin...
+    if not request.user.is_authenticated:
+        context = {
+            "state": "home"
+            }
+        return render(request, "bibtool/index.html", context)
+    
+    #otherwise, if they are logged in...
+    username = request.user
+    bibgroup = username.bibgroup
+
+    context = {}
+    
+    if request.method =='POST':
+        bibtocheck = request.POST["bibtocheck"]
+
+        bibstocheck = request.POST["bibstocheck"]
+
+        if bibstocheck == "":
+            pass
+        else:
+            bibs = bibstocheck.splitlines()
+
+            biblist = []
+            for x in bibs:
+
+                bib2 = NewArticle.objects.get(bibcode=x)
+                #context["bib"] = bib2
+                #print("bib3")
+                #try:
+                #print ("try this")
+                bib2list = Author.objects.filter(bibcode_id=bib2.id)
+                #print (biblist)
+                #context["biblist"] = biblist
+
+
+
+                #print (list(bib2list))
+                biblist.append(bib2list)
+
+
+            #print (biblist)
+            context["biblist"] = biblist
+
+            return render(request, "bibmanage/checkbib.html", context)
+
+
+        # if bibtocheck == "":
+        #     return render(request, "bibmanage/checkbib.html", context)
+
+        # else:
+        #     print ("sent a bibcode")
+        #     print (bibtocheck)
+
+        #     print("bib1")
+        #     try:
+        #         bib1 = Article.objects.get(bibcode=bibtocheck)
+        #         print (bib1)
+
+        #         context["bib"] = bib1
+        #     except:
+        #         pass
+
+        #     print("bib2")
+        #     try:
+        #         bib2 = NewArticle.objects.get(bibcode=bibtocheck)
+        #         print (bib2)
+        #         context["bib"] = bib2
+        #         print("bib3")
+        #         #try:
+        #         print ("try this")
+        #         biblist = Author.objects.filter(bibcode_id=bib2.id)
+        #         print (biblist)
+        #         context["biblist"] = biblist       
+
+        #     except:
+        #         pass
+
+        #     print("here now")
+
+
+        #     return render(request, "bibmanage/checkbib.html", context)
+
+    else:
+        return render(request, "bibmanage/checkbib.html", context)
+
 def add(request):
     #if they are NOT loggedin...
     if not request.user.is_authenticated:

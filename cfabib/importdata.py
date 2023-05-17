@@ -64,7 +64,8 @@ inc_aff_list = incafflist.splitlines()
 #auth_list = authorlist.splitlines()
 
 # author query list
-authorlist = (open('author_list_2021_04_05.txt','r')).read()
+authorlist = (open('author_list_2022_08_02-short.txt','r')).read()
+#authorlist = (open('author_extras.txt','r')).read()
 auth_list = authorlist.splitlines()
 
 # do not SEARCH on the broad or simple aff list, but use to narrow down author name results
@@ -178,13 +179,15 @@ def newadsquery(qtype,query,daterange,devkey):
 
                         try:
                             title = x['title']
-                            title1 = (('|').join(title))
-                            if len(title1) > 249:
-                                titleclean = title1[0:249]
+                            title1 = (('|').join(title)).encode("utf-8", "strict").decode("utf-8").encode('unicode_escape')
+                            if len(title1) > 100:
+                                titleclean = (title1[0:100])
                             else:
                                 titleclean = title1
                         except KeyError:
                             titleclean = ''
+
+                        print (titleclean)
 
 
                         try:
@@ -310,10 +313,10 @@ def newadsquery(qtype,query,daterange,devkey):
 
 if __name__ == "__main__":
 
-    for x in inc_aff_list:
-        newadsquery("aff",x,pubdate,devkey)
+    # for x in inc_aff_list:
+    #     newadsquery("aff",x,pubdate,devkey)
 
     for x in auth_list:
-        newadsquery("author",x,pubdate,devkey)
+       newadsquery("author",x,pubdate,devkey)
 
     print ("finished!")

@@ -1,0 +1,90 @@
+{% extends "bibtool/base.html" %}
+{% load static %}
+
+{% block nav-submit %}active{% endblock %}
+
+{% block title %}
+    CfA Bibliography: Evaluate
+{% endblock %}
+
+{% block body %}
+
+
+
+<div class="container">
+    <div class="row">
+        <div class="col"> 
+            <br/>
+            <h2>Check a Bibcode</h2>
+            <BR/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-6"> 
+            {% if err != "" %}
+            {{err}}
+            <br/><br/>
+            {% endif %}
+
+            <form action="{% url 'checkbib' %}" method="post">
+                {% csrf_token %}
+                <label for="bibtocheck">Bib to Check:</label><br>
+                <input type="text" id="bibtocheck" name="bibtocheck"><br>
+                <textarea placeholder="Lastname, Firstname" rows=10 cols=30 name="bibstocheck"></textarea><br/>
+                <input type="submit" value="Submit">
+            </form>
+
+            <br/><br/>            
+            
+                
+
+        </div>
+
+        <div class="col-6">
+            Bibcode: {{bib}}<br/>
+            Title: {{bib.title}}<br/>
+            Num Authors: {{bib.authnum}}<br/>
+            <br/><br/>
+
+            {% if biblist %}
+            <table class="table">
+                <tr>
+                    <th>Bibcode</th>
+                    <th>Name</th>
+                    <th>Affil</th>
+                    <th>Guess</th>
+                    <th>Query</th>
+                    <th>Inst</th>
+                    <th>Status</th>
+                </tr>
+                {% for y in biblist %}
+                    {% for x in y %}
+                    <tr>
+                        <td>{{x.bibcode.bibcode}}</td>
+                        <td>{{x.name}}</td>
+                        <td>{{x.affil}}</td>
+                        <td>{{x.guess}}</td>
+                        <td>{{x.query}}</td>
+                        <td>{{x.inst}}</td>
+                        <td>{{x.status}}</td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            </table>
+            {% endif %}
+
+            <br/>
+
+            
+
+
+        </div>
+
+
+    </div>
+</div>
+
+
+
+
+{% endblock %}
