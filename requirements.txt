@@ -161,7 +161,7 @@ numba==0.45.1
 numexpr @ file:///C:/ci/numexpr_1640704420125/work
 numpy @ file:///C:/ci/numpy_and_numpy_base_1634106873805/work
 numpydoc @ file:///tmp/build/80754af9/numpydoc_1605117425582/work
-oauthlib==3.2.0
+oauthlib==3.2.2
 olefile==0.46
 openpyxl @ file:///tmp/build/80754af9/openpyxl_1632777717936/work
 packaging @ file:///tmp/build/80754af9/packaging_1637314298585/work
