@@ -34,7 +34,7 @@ boto==2.49.0
 Bottleneck==1.3.2
 brotlipy==0.7.0
 cachetools==4.1.1
-certifi==2021.10.8
+certifi==2023.7.22
 cffi @ file:///C:/ci_310/cffi_1642682485096/work
 chardet @ file:///C:/ci/chardet_1607706910910/work
 charset-normalizer @ file:///tmp/build/80754af9/charset-normalizer_1630003229654/work
