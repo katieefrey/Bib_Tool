@@ -39,10 +39,10 @@
 
     <div class="row">
         <div class="col-12">
-            <p>These records have been automatically classified by the import script.  If the "Status" column is correct, check the box and click the "Verify Records" button.  If the "Status" column is wrong, check the box and use the "Mark as Incorrect" button.  Records marked as incorrect will be visible in the "Author Update" interface next time that page is loaded.</p>
+            <p>These records have had their automatic classification verified by a human (Thank you!!). The record status can be edited if an error is noticed.</p>
         </div>
         <div class="col-12">
-            <p><a href="/nameverified/{{year}}/{{month}}">View all records that have already been verified</a></p>
+            <p><a href="/nameverify/{{year}}/{{month}}">View all records that have NOT yet been verified</a>
         </div>
     </div>
 </div>
@@ -56,8 +56,8 @@
 <div class="container-fluid">    
 
     <div class="card">
-        <div class="card-header" id="headingTwo" style="background-color: #283266;text-align: center;">
-            <h5 class="mb-0" style="color: #ffffff">Not Verified Records</h5>
+        <div class="card-header" id="headingTwo" style="background-color: #666699;text-align: center;">
+            <h5 class="mb-0" style="color: #ffffff">Verified Records</h5>
         </div>
     </div>
 
@@ -78,30 +78,30 @@
             {% endif %}
         </span>
     </div>
-
+        
     {% regroup page_obj by bibcode as bib_list %}
 
     {% for x in bib_list %}
 
         <div class="row records">
             <div class="col-3">
-                <div style="display: block;" id="buttonloc_{{x.grouper.id}}">
-                    <button type="button" data-verify="1" data-artid="{{x.grouper.id}}" data-value="Records Verified" class="sbutton btn custombtn2 btn-success">Verify Records</button>
-                    <br/> <br/>
+                <div style="display: none;" id="buttonloc_{{x.grouper.id}}">
                     <button type="button" data-verify="0" data-artid="{{x.grouper.id}}" data-value="Records Marked Incorrect" class="sbutton btn custombtn2 btn-secondary">Mark as Incorrect</button>
+                    <br/> <br/>
+                    <button type="button" data-id="{{x.grouper.id}}" data-value="cancel" class="cbutton btn custombtn2 btn-secondary">Cancel</button>
                 </div>
-                <div style="display: none;" id="editloc_{{x.grouper.id}}">
-                    <button type="button" data-id="{{x.grouper.id}}" class="ebutton btn custombtn2 btn-secondary">Edit</button>
-                </div>
+                    <div style="display: block;" id="editloc_{{x.grouper.id}}">
+                        <button type="button" data-id="{{x.grouper.id}}" class="ebutton btn custombtn2 btn-secondary">Edit</button>
+                    </div>
             </div>
             <div class="col-9">
-                <span style="padding-bottom: 1rem"><a href="https://ui.adsabs.harvard.edu/abs/{{x.grouper.bibcode}}/abstract" target="_blank">{{x.grouper.bibcode}}</a> {{x.grouper.title}}</span>
+                <span style="padding-bottom: .5rem"><a href="https://ui.adsabs.harvard.edu/abs/{{x.grouper.bibcode}}/abstract" target="_blank">{{x.grouper.bibcode}}</a> {{x.grouper.title}}</span>
                 
                 <table id="bibliography" width="100%">
                     <thead>
                         <tr>
                             <th></th>
-                            <th width="75px">Guess</th>
+                            <th width="75px">Status</th>
                             <th width="175px">Name</th>
                             <th>Affilation</th>
                             <th>Query</th>
@@ -114,12 +114,9 @@
                             <td>
                                 <input type="checkbox" id="cb_{{rec.id}}" name="auth-{{x.grouper.id}}" value="{{rec.name}}">
                             </td>
-                            <td {% if rec.guess.id != 1 %}style="background-color:red" {% endif %}>
+                            <td class="{{rec.inst|cut:' '}}">
                                 <span id="span_{{rec.id}}">
-                                {% if rec.inst.id == 5 %}
-                                Not CfA{% else %}
-                                    CfA
-                                {% endif %}
+                                {{rec.inst}}
                                 </span>
                             </td>
                             <td>
@@ -145,10 +142,7 @@
         </div>
 
     {% endfor %}
-    <!-- https://stackoverflow.com/questions/11388296/split-queryset-or-get-multiple-querysets-by-field-instead-of-just-ordering-by-fi -->
-
 </div>
-
 
 <div class="pagination">
     <span class="step-links">
@@ -167,7 +161,6 @@
         {% endif %}
     </span>
 </div>
-
 <!-- end of container for accordians-->
 
 <script>

@@ -37,200 +37,140 @@
         </div>
 
     </div>
+
+    <div class="row">
+        <div class="col-12">
+            <p>These records need to be checked by a human because the automatic classifer wasn't sure what to do with them.  Please select the records and choose the apporpirate classification.  Use "unknown" if you cannot determine the classification.</p>
+        </div>
+        <div class="col-12">
+            <p><a href="/nameupdated/{{year}}/{{month}}">View all records that have already been checked</a></p>
+        </div>
+    </div>
 </div>
 <!-- end of container for chart and blerb-->
 
 <br/>
 
-{% if numnot != 0 %}
-<!-- start of container for both accordians-->
 <div class="container-fluid">
 
-    <div id="accordion">
-        <div class="card">
-            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" style="color: #ffffff">
-                <div class="card-header" id="headingTwo" style="background-color: #283266">
-                    <h5 class="mb-0">View Not Modified Records</h5>
-                </div>
-            </button>
-            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-      
-                <div class="card-body">
-
-                    {% regroup authors by bibcode as bib_list %}
-
-                    {% for x in bib_list %}
-
-                        <div class="row records">
-                            <div class="col-3">
-                                <div style="display: block;" id="buttonloc_{{x.grouper.id}}">
-                                    <button type="button" data-cfainst="6" data-artid="{{x.grouper.id}}" data-value="CfA" class="sbutton btn custombtn btn-success">CfA</button>&nbsp;&nbsp;&nbsp;
-                                    <button type="button" data-cfainst="5" data-artid="{{x.grouper.id}}" data-value="Not CfA" class="sbutton btn custombtn btn-warning">Not CfA</button>
-                                    <br/> <br/>
-                                    <button type="button" data-cfainst="1" data-artid="{{x.grouper.id}}" data-value="CfA: HCO" class="sbutton btn custombtn btn-danger">CfA: HCO</button>&nbsp;&nbsp;&nbsp;
-                                    <button type="button" data-cfainst="2" data-artid="{{x.grouper.id}}" data-value="CfA: SAO" class="sbutton btn custombtn btn-primary">CfA: SAO</button>
-                                    <br/> <br/>
-                                    <button type="button" data-cfainst="3" data-artid="{{x.grouper.id}}" data-value="CfA: Both HCO & SAO" class="sbutton btn custombtn2 btn-info">CfA: Both HCO & SAO</button>
-                                    <br/> <br/>
-                                    <button type="button" data-cfainst="4" data-artid="{{x.grouper.id}}" data-value="unknown" class="sbutton btn custombtn2 btn-secondary">Unknown</button>
-                                </div>
-                                        <div style="display: none;" id="editloc_{{x.grouper.id}}">
-                                            <button type="button" data-id="{{x.grouper.id}}" class="ebutton btn custombtn2 btn-secondary">Edit</button>
-                                        </div>
-                                    </div>
-                            <div class="col-9">
-                                <span style="padding-bottom: 1rem"><a href="https://ui.adsabs.harvard.edu/abs/{{x.grouper.bibcode}}/abstract" target="_blank">{{x.grouper.bibcode}}</a> {{x.grouper.title}}</span>
-                                
-                                <table id="bibliography" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th>Status</th>
-                                            <th width="175px">Name</th>
-                                            <th>Affilation</th>
-                                            <th>Guess</th>
-                                            <th>Query</th>
-                                            
-                                        </tr>
-                                    </thead>
-                                    
-                                    {% for rec in x.list %}
-                                        <tr>
-                                            <td>
-                                                
-                                                <input type="checkbox" id="cb_{{rec.id}}" name="auth-{{x.grouper.id}}" value="{{rec.name}}">
-                                                <span id="span_{{rec.id}}">
-                                                {% if rec.inst.id != 4 %}
-                                                    {{rec.inst}}
-                                                {% endif %}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <label for="cb_{{rec.id}}">{{rec.name}}</label>
-                                            </td>
-                                            <td>
-                                                {{rec.affil}}
-                                            </td>
-                                            <td {% if rec.guess.id != 1 %}style="background-color:red" {% endif %}>
-                                                {{rec.guess}}
-                                            </td>
-                                            <td>
-                                                {{rec.query}}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    <tr>
-                                        <td colspan="5">
-                                            <input type="checkbox" class="checkall" name="list-{{x.grouper.id}}" id="list-{{x.grouper.id}}" value="{{x.grouper.bibcode}}"> <label for="list-{{x.grouper.id}}"><strong>Check all for {{x.grouper.bibcode}}</strong></label>
-                                        </td>
-                                        
-                                    </tr>
-                                </table>
-
-                            </div>
-                        </div>
-                    {% endfor %}
-                <!-- https://stackoverflow.com/questions/11388296/split-queryset-or-get-multiple-querysets-by-field-instead-of-just-ordering-by-fi -->
-
-                    <br/>
-
-                </div>
-            </div>
-        </div>
-    </div>
-{% endif %}
-
-
-    <!-- accordian modified records starts-->
-    <div id="accordion">
-        <div class="card">
-            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree" style="color: #ffffff">
-                <div class="card-header" id="headingTwo" style="background-color: #666699">
-                    <h5 class="mb-0">View Modified Records</h5>
-                </div>
-            </button>
-            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
-                <div class="card-body">
-                    {% regroup edauthors by bibcode as bib_list %}
-
-                    {% for x in bib_list %}
-
-                        <div class="row records">
-                            <div class="col-3">
-                                <div style="display: none;" id="buttonloc_{{x.grouper.id}}">
-                                    <button type="button" data-cfainst="6" data-artid="{{x.grouper.id}}" data-value="CfA" class="sbutton btn custombtn btn-success">CfA</button>&nbsp;&nbsp;&nbsp;
-                                    <button type="button" data-cfainst="5" data-artid="{{x.grouper.id}}" data-value="Not CfA" class="sbutton btn custombtn btn-warning">Not CfA</button>
-                                    <br/> <br/>
-                                    <button type="button" data-cfainst="1" data-artid="{{x.grouper.id}}" data-value="CfA: HCO" class="sbutton btn custombtn btn-danger">CfA: HCO</button>&nbsp;&nbsp;&nbsp;
-                                    <button type="button" data-cfainst="2" data-artid="{{x.grouper.id}}" data-value="CfA: SAO" class="sbutton btn custombtn btn-primary">CfA: SAO</button>
-                                    <br/> <br/>
-                                    <button type="button" data-cfainst="3" data-artid="{{x.grouper.id}}" data-value="CfA: Both HCO & SAO" class="sbutton btn custombtn2 btn-info">CfA: Both HCO & SAO</button>
-                                    <br/> <br/>
-                                    <button type="button" data-cfainst="4" data-artid="{{x.grouper.id}}" data-value="unknown" class="sbutton btn custombtn2 btn-secondary">Unknown</button>
-                                    <br/> <br/>
-                                    <button type="button" data-id="{{x.grouper.id}}" data-value="cancel" class="cbutton btn custombtn2 btn-secondary">Cancel</button>
-                                </div>
-                                    <div style="display: block;" id="editloc_{{x.grouper.id}}">
-                                        <button type="button" data-id="{{x.grouper.id}}" class="ebutton btn custombtn2 btn-secondary">Edit</button>
-                                    </div>
-                            </div>
-                            <div class="col-9">
-                                <span style="padding-bottom: .5rem"><a href="https://ui.adsabs.harvard.edu/abs/{{x.grouper.bibcode}}/abstract" target="_blank">{{x.grouper.bibcode}}</a> {{x.grouper.title}}</span>
-                                
-                                <table id="bibliography" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th>Status</th>
-                                            <th width="175px">Name</th>
-                                            <th>Affilation</th>
-                                            <th>Guess</th>
-                                            <th>Query</th>
-                                            
-                                        </tr>
-                                    </thead>
-                                    
-                                    {% for rec in x.list %}
-                                        <tr>
-                                            <td><div class="checkbox">
-                                                <input type="checkbox" id="cb_{{rec.id}}" name="auth-{{x.grouper.id}}" value="{{rec.name}}">
-                                            </div>
-                                                <span id="span_{{rec.id}}">
-                                                    {{rec.inst}}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <label for="cb_{{rec.id}}">{{rec.name}}</label>
-                                            </td>
-                                            <td>
-                                                {{rec.affil}}
-                                            </td>
-                                            <td>
-                                                {{rec.guess}}
-                                            </td>
-                                            <td>
-                                                {{rec.query}}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    <tr>
-                                        <td colspan="5">
-                                            <input type="checkbox" class="checkall" name="list-{{x.grouper.id}}" id="list-{{x.grouper.id}}" value="{{x.grouper.bibcode}}"> <label for="list-{{x.grouper.id}}"><strong>Check all for {{x.grouper.bibcode}}</strong></label>
-                                        </td>
-                                        
-                                    </tr>
-                                </table>
-
-                            </div>
-                        </div>
-                    {% endfor %}
-                <!-- https://stackoverflow.com/questions/11388296/split-queryset-or-get-multiple-querysets-by-field-instead-of-just-ordering-by-fi -->
-
-
-
-                </div>
-            </div>
+    <div class="card">
+        <div class="card-header" id="headingTwo" style="background-color: #283266;text-align: center;">
+            <h5 class="mb-0" style="color: #ffffff">Not Checked Records</h5>
         </div>
     </div>
 
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+
+    {% regroup page_obj by bibcode as bib_list %}
+
+    {% for x in bib_list %}
+
+        <div class="row records">
+            <div class="col-3">
+                <div style="display: block;" id="buttonloc_{{x.grouper.id}}">
+                    <button type="button" data-cfainst="6" data-artid="{{x.grouper.id}}" data-value="CfA" class="sbutton btn custombtn btn-success">CfA</button>&nbsp;&nbsp;&nbsp;
+                    <button type="button" data-cfainst="5" data-artid="{{x.grouper.id}}" data-value="Not CfA" class="sbutton btn custombtn btn-warning">Not CfA</button>
+                    <br/> <br/>
+                    <button type="button" data-cfainst="1" data-artid="{{x.grouper.id}}" data-value="CfA: HCO" class="sbutton btn custombtn btn-danger">CfA: HCO</button>&nbsp;&nbsp;&nbsp;
+                    <button type="button" data-cfainst="2" data-artid="{{x.grouper.id}}" data-value="CfA: SAO" class="sbutton btn custombtn btn-primary">CfA: SAO</button>
+                    <br/> <br/>
+                    <button type="button" data-cfainst="3" data-artid="{{x.grouper.id}}" data-value="CfA: Both HCO & SAO" class="sbutton btn custombtn2 btn-info">CfA: Both HCO & SAO</button>
+                    <br/> <br/>
+                    <button type="button" data-cfainst="4" data-artid="{{x.grouper.id}}" data-value="unknown" class="sbutton btn custombtn2 btn-secondary">Unknown</button>
+                </div>
+                        <div style="display: none;" id="editloc_{{x.grouper.id}}">
+                            <button type="button" data-id="{{x.grouper.id}}" class="ebutton btn custombtn2 btn-secondary">Edit</button>
+                        </div>
+                    </div>
+            <div class="col-9">
+                <span style="padding-bottom: 1rem"><a href="https://ui.adsabs.harvard.edu/abs/{{x.grouper.bibcode}}/abstract" target="_blank">{{x.grouper.bibcode}}</a> {{x.grouper.title}}</span>
+                
+                <table id="bibliography" width="100%">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th width="75px">Status</th>
+                            <th width="175px">Name</th>
+                            <th>Affilation</th>
+                            <th>Guess</th>
+                            <th>Query</th>
+                            
+                        </tr>
+                    </thead>
+                    
+                    {% for rec in x.list %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" id="cb_{{rec.id}}" name="auth-{{x.grouper.id}}" value="{{rec.name}}">
+                            </td>
+                            <td>
+                                <span id="span_{{rec.id}}">
+                                {% if rec.inst.id != 4 %}
+                                    {{rec.inst}}
+                                {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <label for="cb_{{rec.id}}">{{rec.name}}</label>
+                            </td>
+                            <td>
+                                {{rec.affil}}
+                            </td>
+                            <td {% if rec.guess.id != 1 %}style="background-color:red" {% endif %}>
+                                {{rec.guess}}
+                            </td>
+                            <td>
+                                {{rec.query}}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="6  ">
+                            <input type="checkbox" class="checkall" name="list-{{x.grouper.id}}" id="list-{{x.grouper.id}}" value="{{x.grouper.bibcode}}"> <label for="list-{{x.grouper.id}}"><strong>Check all for {{x.grouper.bibcode}}</strong></label>
+                        </td>
+                        
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+    {% endfor %}
+    <!-- https://stackoverflow.com/questions/11388296/split-queryset-or-get-multiple-querysets-by-field-instead-of-just-ordering-by-fi -->
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+                    
 </div>
 
 

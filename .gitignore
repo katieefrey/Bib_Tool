@@ -24,6 +24,7 @@ bibhelper.py
 importdata-old.py
 
 cfabib/cfabib/secrets.py
+cfabib/cfabib/secrets-ro.py
 cfabib/*.csv
 cfabib/*.txt
 cfabib/*.xlsx
@@ -31,6 +32,8 @@ cfabib/doubelcheck.py
 cfabib/bibsearch_mccarthy.py
 cfabib/check_guesses.py
 cfabib/getstatus.py
+
+cfabib/bibtool/static/bibtool/img/*
 
 public/*
 

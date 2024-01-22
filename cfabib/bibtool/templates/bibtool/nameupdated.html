@@ -24,14 +24,15 @@
                 <br/>
                 <h3 class="mt-0">Progress Report</h3>
                 <br/>
-                <p>The number of records that have been verified: {{numver}}</p>
-                <p class="mb-0">The number of records that still need to be checked: {{numnotv}}</p>
+                <p>The number of records that have been checked: {{numod}}</p>
+                <p class="mb-0">The number of records that still need to be checked: {{numnot}}</p>
             </div>
         </div>
 
         <div class="col">
             <div class="media-right">
                 <div id="myDiv" class="media-object"></div>
+
             </div>
         </div>
 
@@ -39,25 +40,24 @@
 
     <div class="row">
         <div class="col-12">
-            <p>These records have been automatically classified by the import script.  If the "Status" column is correct, check the box and click the "Verify Records" button.  If the "Status" column is wrong, check the box and use the "Mark as Incorrect" button.  Records marked as incorrect will be visible in the "Author Update" interface next time that page is loaded.</p>
+            <p>These records have had their classifications checked by a human (Thank you!!). The record status can be edited if an error is noticed.</p>
         </div>
         <div class="col-12">
-            <p><a href="/nameverified/{{year}}/{{month}}">View all records that have already been verified</a></p>
+            <p><a href="/nameupdate/{{year}}/{{month}}">View all records that have NOT yet been checked</a>
         </div>
     </div>
 </div>
 <!-- end of container for chart and blerb-->
 
-
 <br/>
 
 
 <!-- start of container for both accordians-->
-<div class="container-fluid">    
+<div class="container-fluid">
 
     <div class="card">
-        <div class="card-header" id="headingTwo" style="background-color: #283266;text-align: center;">
-            <h5 class="mb-0" style="color: #ffffff">Not Verified Records</h5>
+        <div class="card-header" id="headingTwo" style="background-color: #666699;text-align: center;">
+            <h5 class="mb-0" style="color: #ffffff">Checked Records</h5>
         </div>
     </div>
 
@@ -78,32 +78,41 @@
             {% endif %}
         </span>
     </div>
-
+    
     {% regroup page_obj by bibcode as bib_list %}
 
     {% for x in bib_list %}
 
         <div class="row records">
             <div class="col-3">
-                <div style="display: block;" id="buttonloc_{{x.grouper.id}}">
-                    <button type="button" data-verify="1" data-artid="{{x.grouper.id}}" data-value="Records Verified" class="sbutton btn custombtn2 btn-success">Verify Records</button>
+                <div style="display: none;" id="buttonloc_{{x.grouper.id}}">
+                    <button type="button" data-cfainst="6" data-artid="{{x.grouper.id}}" data-value="CfA" class="sbutton btn custombtn btn-success">CfA</button>&nbsp;&nbsp;&nbsp;
+                    <button type="button" data-cfainst="5" data-artid="{{x.grouper.id}}" data-value="Not CfA" class="sbutton btn custombtn btn-warning">Not CfA</button>
                     <br/> <br/>
-                    <button type="button" data-verify="0" data-artid="{{x.grouper.id}}" data-value="Records Marked Incorrect" class="sbutton btn custombtn2 btn-secondary">Mark as Incorrect</button>
+                    <button type="button" data-cfainst="1" data-artid="{{x.grouper.id}}" data-value="CfA: HCO" class="sbutton btn custombtn btn-danger">CfA: HCO</button>&nbsp;&nbsp;&nbsp;
+                    <button type="button" data-cfainst="2" data-artid="{{x.grouper.id}}" data-value="CfA: SAO" class="sbutton btn custombtn btn-primary">CfA: SAO</button>
+                    <br/> <br/>
+                    <button type="button" data-cfainst="3" data-artid="{{x.grouper.id}}" data-value="CfA: Both HCO & SAO" class="sbutton btn custombtn2 btn-info">CfA: Both HCO & SAO</button>
+                    <br/> <br/>
+                    <button type="button" data-cfainst="4" data-artid="{{x.grouper.id}}" data-value="unknown" class="sbutton btn custombtn2 btn-secondary">Unknown</button>
+                    <br/> <br/>
+                    <button type="button" data-id="{{x.grouper.id}}" data-value="cancel" class="cbutton btn custombtn2 btn-secondary">Cancel</button>
                 </div>
-                <div style="display: none;" id="editloc_{{x.grouper.id}}">
-                    <button type="button" data-id="{{x.grouper.id}}" class="ebutton btn custombtn2 btn-secondary">Edit</button>
-                </div>
+                    <div style="display: block;" id="editloc_{{x.grouper.id}}">
+                        <button type="button" data-id="{{x.grouper.id}}" class="ebutton btn custombtn2 btn-secondary">Edit</button>
+                    </div>
             </div>
             <div class="col-9">
-                <span style="padding-bottom: 1rem"><a href="https://ui.adsabs.harvard.edu/abs/{{x.grouper.bibcode}}/abstract" target="_blank">{{x.grouper.bibcode}}</a> {{x.grouper.title}}</span>
+                <span style="padding-bottom: .5rem"><a href="https://ui.adsabs.harvard.edu/abs/{{x.grouper.bibcode}}/abstract" target="_blank">{{x.grouper.bibcode}}</a> {{x.grouper.title}}</span>
                 
                 <table id="bibliography" width="100%">
                     <thead>
                         <tr>
                             <th></th>
-                            <th width="75px">Guess</th>
+                            <th width="75px">Status</th>
                             <th width="175px">Name</th>
                             <th>Affilation</th>
+                            <th>Guess</th>
                             <th>Query</th>
                             
                         </tr>
@@ -114,12 +123,9 @@
                             <td>
                                 <input type="checkbox" id="cb_{{rec.id}}" name="auth-{{x.grouper.id}}" value="{{rec.name}}">
                             </td>
-                            <td {% if rec.guess.id != 1 %}style="background-color:red" {% endif %}>
+                            <td class="{{rec.inst|cut:' '}}">
                                 <span id="span_{{rec.id}}">
-                                {% if rec.inst.id == 5 %}
-                                Not CfA{% else %}
-                                    CfA
-                                {% endif %}
+                                {{rec.inst}}
                                 </span>
                             </td>
                             <td>
@@ -129,12 +135,15 @@
                                 {{rec.affil}}
                             </td>
                             <td>
+                                {{rec.guess}}
+                            </td>
+                            <td>
                                 {{rec.query}}
                             </td>
                         </tr>
                     {% endfor %}
                     <tr>
-                        <td colspan="5">
+                        <td colspan="6">
                             <input type="checkbox" class="checkall" name="list-{{x.grouper.id}}" id="list-{{x.grouper.id}}" value="{{x.grouper.bibcode}}"> <label for="list-{{x.grouper.id}}"><strong>Check all for {{x.grouper.bibcode}}</strong></label>
                         </td>
                         
@@ -143,32 +152,28 @@
 
             </div>
         </div>
-
     {% endfor %}
     <!-- https://stackoverflow.com/questions/11388296/split-queryset-or-get-multiple-querysets-by-field-instead-of-just-ordering-by-fi -->
 
-</div>
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
 
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
 
-<div class="pagination">
-    <span class="step-links">
-        {% if page_obj.has_previous %}
-            <a href="?page=1">&laquo; first</a>
-            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-        {% endif %}
-
-        <span class="current">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
         </span>
+    </div>
 
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">next</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-        {% endif %}
-    </span>
 </div>
-
-<!-- end of container for accordians-->
 
 <script>
 
@@ -185,8 +190,8 @@ $(document).ready(function() {
 
 //graph
 var data = [{
-  values: [{{numver}}, {{numnotv}}],
-  labels: ['Verified', 'Not Verified'],
+  values: [{{numod}}, {{numnot}}],
+  labels: ['Checked', 'Unchecked'],
   
   type: 'pie'
 }];
@@ -232,7 +237,7 @@ $('.cbutton').click(function(){
 });
 
 $('.sbutton').click(function(){
-    var verify = $(this).attr("data-verify");
+    var cfainst = $(this).attr("data-cfainst");
     var artid = $(this).attr("data-artid");
     auths = []
     $('input[name="auth-'+artid+'"]').each(function(){
@@ -253,9 +258,9 @@ $('.sbutton').click(function(){
         $.ajax(
         {
             type:"POST",
-            url: "/post_nameverify",
+            url: "/post_nameupdate",
             data:{
-                    verify: verify,
+                    cfainst: cfainst,
                     authid: auths, // sending list of authors to server
                     art: artid,
             },

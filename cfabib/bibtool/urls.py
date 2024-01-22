@@ -26,5 +26,13 @@ urlpatterns = [
     path('nameverify/<int:year>/<int:month>', views.nameverify, name='nameverify'),
     path('post_nameupdate', views.post_nameupdate, name='post_nameupdate'),
     path('post_nameverify', views.post_nameverify, name='post_nameverify'),
+
+
+    path('nameverified/<int:year>/<int:month>', views.nameverified, name='nameverified'),
+    path('nameupdated/<int:year>/<int:month>', views.nameupdated, name='nameupdated'),
+
+    path('bibcode/<bib>',views.bibcode, name='bibcode'),
+
+    #path('nameverifyalt/<int:year>/<int:month>', views.nameverifyalt, name='nameverifyalt'),
     ]
     

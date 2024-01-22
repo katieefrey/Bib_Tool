@@ -64,7 +64,8 @@ inc_aff_list = incafflist.splitlines()
 #auth_list = authorlist.splitlines()
 
 # author query list
-authorlist = (open('author_list_2022_08_02-short.txt','r')).read()
+#authorlist = (open('author_list_2022_08_02.txt','r')).read()
+authorlist = (open('author_list_started_2022_2023.txt','r')).read()
 #authorlist = (open('author_extras.txt','r')).read()
 auth_list = authorlist.splitlines()
 
@@ -313,8 +314,8 @@ def newadsquery(qtype,query,daterange,devkey):
 
 if __name__ == "__main__":
 
-    # for x in inc_aff_list:
-    #     newadsquery("aff",x,pubdate,devkey)
+    for x in inc_aff_list:
+       newadsquery("aff",x,pubdate,devkey)
 
     for x in auth_list:
        newadsquery("author",x,pubdate,devkey)

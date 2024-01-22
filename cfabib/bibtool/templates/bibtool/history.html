@@ -33,7 +33,8 @@
                 <strong>{{day}}/{{month}}/{{year}}</strong>
                 <br/>
                 {% for u in bibs %}
-                {{u.bibcode.bibcode}}{{u.author.bibcode}}<br/>
+                <a href="/bibcode/{{u}}">{{u}}</a>
+                <br/>
                 {% endfor %}
 
 

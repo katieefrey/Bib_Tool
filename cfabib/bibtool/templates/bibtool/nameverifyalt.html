@@ -86,8 +86,6 @@
         <div class="row records">
             <div class="col-3">
                 <div style="display: block;" id="buttonloc_{{x.grouper.id}}">
-                    <button type="button" data-verify="1" data-artid="{{x.grouper.id}}" data-value="Records Verified" class="sbutton btn custombtn2 btn-success">Verify Records</button>
-                    <br/> <br/>
                     <button type="button" data-verify="0" data-artid="{{x.grouper.id}}" data-value="Records Marked Incorrect" class="sbutton btn custombtn2 btn-secondary">Mark as Incorrect</button>
                 </div>
                 <div style="display: none;" id="editloc_{{x.grouper.id}}">
@@ -112,7 +110,7 @@
                     {% for rec in x.list %}
                         <tr>
                             <td>
-                                <input type="checkbox" id="cb_{{rec.id}}" name="auth-{{x.grouper.id}}" value="{{rec.name}}">
+                                <input type="checkbox" class="unmod" id="cb_{{rec.id}}" name="auth-{{x.grouper.id}}" value="{{rec.name}}">
                             </td>
                             <td {% if rec.guess.id != 1 %}style="background-color:red" {% endif %}>
                                 <span id="span_{{rec.id}}">
@@ -133,18 +131,24 @@
                             </td>
                         </tr>
                     {% endfor %}
-                    <tr>
-                        <td colspan="5">
-                            <input type="checkbox" class="checkall" name="list-{{x.grouper.id}}" id="list-{{x.grouper.id}}" value="{{x.grouper.bibcode}}"> <label for="list-{{x.grouper.id}}"><strong>Check all for {{x.grouper.bibcode}}</strong></label>
-                        </td>
-                        
-                    </tr>
+
                 </table>
 
             </div>
         </div>
 
     {% endfor %}
+
+    <div class="row records">
+
+        <div class="col-4">
+            <input type="checkbox" class="checkall" name="checkall" id="checkall" value="checkall"> <label for="checkall"><strong>Check all remaining on page</strong></label>
+        </div>
+        <div>
+            <button type="button" data-verify="1" id="verifybutton" data-artid="checkall" data-value="Records Verified" class="sbutton btn custombtn2 btn-success">Verify Records</button><span id="allrecinfo"></span>
+        </div>
+    </div>
+    
     <!-- https://stackoverflow.com/questions/11388296/split-queryset-or-get-multiple-querysets-by-field-instead-of-just-ordering-by-fi -->
 
 </div>
@@ -232,15 +236,51 @@ $('.cbutton').click(function(){
 });
 
 $('.sbutton').click(function(){
+
     var verify = $(this).attr("data-verify");
-    var artid = $(this).attr("data-artid");
-    auths = []
-    $('input[name="auth-'+artid+'"]').each(function(){
-        if(this.checked) {
-            var num = $(this).attr("id");
-            auths.push(num.replace("cb_",""));
-        }
-    });
+
+    console.log(verify);
+
+    if(verify == 0){
+        //marking as incorrect
+        var artid = [$(this).attr("data-artid")];
+        auths = [];
+        $('input[name="auth-'+artid+'"]').each(function(){
+            if(this.checked) {
+                var num = $(this).attr("id");
+                auths.push(num.replace("cb_",""));
+            }
+
+        console.log(artid);
+        console.log(auths);
+        });
+    } else if(verify == 1){
+        //marking all remaining as correct
+        $("#allrecinfo").html("<img src='{% static 'bibtool/img/loading.gif' %}'>");
+
+        var allunmod = ($(".unmod"));
+        var artid = [];
+        $(allunmod).each(function(){
+            var num = $(this).attr("name");
+            artid.push(num.replace("auth-",""));
+        });
+
+        // the above is the list of art ids i want to edit enmass
+        // post_name verify expects a single article idea but I want to send it several article ids
+
+        auths = [];
+        $(allunmod).each(function(){
+            if(this.checked) {
+                var num = $(this).attr("id");
+                auths.push(num.replace("cb_",""));
+            }
+        });
+    }
+
+    // console.log("this is the artid list");
+    // console.log(artid);
+    // console.log("run database mod on following list:");
+    // console.log(auths);
 
     if (auths.length != 0) {
         
@@ -257,16 +297,26 @@ $('.sbutton').click(function(){
             data:{
                     verify: verify,
                     authid: auths, // sending list of authors to server
-                    art: artid,
+                    art: artid, // sending list of articles to server
             },
             success: function( data ) 
             {
-                $("#buttonloc_"+artid).hide();
-                $("#editloc_"+artid).show();
+                for (i=0;i<artid.length;i++){
+                        $("#buttonloc_"+artid[i]).hide();
+                        $("#editloc_"+artid[i]).show();
+                }
+                // $("#buttonloc_"+artid).hide();
+                // $("#editloc_"+artid).show();
                 for (i=0;i<auths.length;i++){
-                    console.log(auths[i]);
+                    //console.log(auths[i]);
                     $('input#cb_'+auths[i]).prop("checked", false);
+                    $('input#cb_'+auths[i]).removeClass("unmod");
+                    $('input#cb_'+auths[i]).addClass("mod");
                     $("#span_"+auths[i]).text(span_value);
+                }
+
+                if(verify==1){
+                    $("#allrecinfo").html("All Records Updated");
                 }
             }
          })
@@ -274,16 +324,30 @@ $('.sbutton').click(function(){
 });
 
 $(".checkall").click(function(event) {
-    var thing = ($(this).attr("name")).replace("list-","");
+
+    var allunmod = ($(".unmod"));
+    console.log(allunmod);
+    console.log(this);
     if(this.checked) {
-        $('input[name="auth-'+thing+'"]').each(function(){
+        $(allunmod).each(function(){
             this.checked = true;
         });
     } else {
-        $('input[name="auth-'+thing+'"]').each(function(){
+        $(allunmod).each(function(){
             this.checked = false;                       
         });
+
     }
+    // var thing = ($(this).attr("name")).replace("list-","");
+    // if(this.checked) {
+    //     $('input[name="auth-'+thing+'"]').each(function(){
+    //         this.checked = true;
+    //     });
+    // } else {
+    //     $('input[name="auth-'+thing+'"]').each(function(){
+    //         this.checked = false;                       
+    //     });
+    // }
 });
 
 

@@ -40,7 +40,7 @@ def batch(request):
     # view all bibcodes?
 
     # list all currently closed batches
-    closed = Batch.objects.filter(bibgroup=bibgroup,closed=True)
+    closed = Batch.objects.filter(bibgroup=bibgroup,closed=True).order_by('-created')
 
     # list all bibcodes classified to the right bibgroup, that are NOT in a batch
     # old system

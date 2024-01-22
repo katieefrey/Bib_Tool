@@ -134,6 +134,34 @@ a:active {
     color: #ffffff;
 }
 
+.eitherHCOorSAO, .bothHCOandsSAO {
+    background-color: #d3b4fb;
+}
+
+.neither {
+    background-color: #e9cb84;
+}
+
+.HCO {
+    background-color: #E36679;
+}
+
+.SAO {
+    background-color: #009CDE;
+}
+
+.unknown {
+    background-color: #f1f594;
+}
+
+.pagination {
+    width:100%;
+    text-align: center;
+    display:block;
+    border-bottom: 2px solid #514d4d;
+    padding: 20px;
+}
+
 
 /* for the submit button*/
 

@@ -10,6 +10,8 @@ from django.db.models.functions import TruncDate, TruncMonth, TruncDay, TruncHou
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 
+from django.core.paginator import Paginator
+
 import urllib.parse
 import requests
 import time
@@ -91,7 +93,6 @@ def account(request):
     history = Work.objects.filter(username_id=userid).annotate(day=TruncDay('created')).values('day').annotate(c=Count('id'))
 
     pwform = PasswordChangeForm(request.user)
-
     context["pwform"] = pwform
 
     batchlist = []
@@ -118,7 +119,8 @@ def history(request,year,month,day):
     #otherwise, if they are logged in...
     userid = request.user.id
 
-    bibs = Work.objects.filter(created__year=year,created__month=month,created__day=day,username_id=userid)
+    worklist = Work.objects.filter(created__year=year,created__month=month,created__day=day,username_id=userid).values("author__bibcode").distinct()
+    bibs = NewArticle.objects.filter(id__in=worklist)
 
     context = {
         "bibs" : bibs,
@@ -225,7 +227,7 @@ def batch(request):
 
 
 
-def nameupdate(request,year, month):
+def nameupdate(request,year,month):
 
     #if they are NOT loggedin...
     if not request.user.is_authenticated:
@@ -240,19 +242,59 @@ def nameupdate(request,year, month):
     authors = Author.objects.filter(created__year=year,created__month=month,adminbibgroup=bibgroup, autoclass=False, edited=False).order_by('bibcode')
 
     # edited records
-    edauthors = Author.objects.filter(created__year=year,created__month=month,adminbibgroup=bibgroup, autoclass=False, edited=True).order_by('bibcode')
+    numod = Author.objects.filter(created__year=year,created__month=month,adminbibgroup=bibgroup, autoclass=False, edited=True).order_by('bibcode').count()
+
+    p = Paginator(authors, 250)
+
+    page_number = request.GET.get("page")
+    page_obj = p.get_page(page_number)
         
     context = {
-        "authors": authors,
-        "edauthors": edauthors,
-        "numod": len(edauthors),
+        "page_obj": page_obj,
+        #"edauthors": edauthors,
+        "numod": numod,
         "numnot": len(authors),
+        "year": year,
+        "month": month,
         }
 
     return render(request, "bibtool/nameupdate.html", context)
 
 
-def nameverify(request,year, month):
+def nameupdated(request,year,month):
+
+    #if they are NOT loggedin...
+    if not request.user.is_authenticated:
+        context = {
+            "state": "home"
+            }
+        return render(request, "bibtool/index.html", context)
+
+    bibgroup = request.user.bibgroup
+
+    # unedited records
+    numnot = Author.objects.filter(created__year=year,created__month=month,adminbibgroup=bibgroup, autoclass=False, edited=False).order_by('bibcode').count()
+
+    # edited records
+    edauthors = Author.objects.filter(created__year=year,created__month=month,adminbibgroup=bibgroup, autoclass=False, edited=True).order_by('bibcode')
+
+    p = Paginator(edauthors, 250)
+
+    page_number = request.GET.get("page")
+    page_obj = p.get_page(page_number)
+
+    context = {
+        #"authors": authors,
+        "page_obj": page_obj,
+        "numod": len(edauthors),
+        "numnot": numnot,
+        "year": year,
+        "month": month,
+        }
+
+    return render(request, "bibtool/nameupdated.html", context)
+
+def nameverify(request,year,month):
 
     #if they are NOT loggedin...
     if not request.user.is_authenticated:
@@ -267,19 +309,62 @@ def nameverify(request,year, month):
     notv = Author.objects.filter(created__year=year,created__month=month,adminbibgroup=bibgroup, autoclass=True, verified=False).order_by('bibcode')
 
     # verified records
-    ver = Author.objects.filter(created__year=year,created__month=month,adminbibgroup=bibgroup, autoclass=True, verified=True).order_by('bibcode')
+    numver = Author.objects.filter(created__year=year,created__month=month,adminbibgroup=bibgroup, autoclass=True, verified=True).order_by('bibcode').count()
+
+    p = Paginator(notv, 50)
+
+    page_number = request.GET.get("page")
+    page_obj = p.get_page(page_number)
         
     context = {
-        "ver": ver,
-        "notv": notv,
-        "numver": len(ver),
+        #"ver": ver,
+        #"notv": notv,
+        "page_obj": page_obj,
+        "numver": numver,
         "numnotv": len(notv),
+        "year": year,
+        "month": month,
         }
 
-    return render(request, "bibtool/nameverify.html", context)
+    return render(request, "bibtool/nameverifyalt.html", context)
 
 
-def nameunknown(request,year, month):
+def nameverified(request,year,month):
+
+    #if they are NOT loggedin...
+    if not request.user.is_authenticated:
+        context = {
+            "state": "home"
+            }
+        return render(request, "bibtool/index.html", context)
+
+    bibgroup = request.user.bibgroup
+
+    # unverified records
+    numnotv = Author.objects.filter(created__year=year,created__month=month,adminbibgroup=bibgroup, autoclass=True, verified=False).order_by('bibcode').count()
+
+    # verified records
+    ver = Author.objects.filter(created__year=year,created__month=month,adminbibgroup=bibgroup, autoclass=True, verified=True).order_by('bibcode')
+
+    p = Paginator(ver, 250)
+
+    page_number = request.GET.get("page")
+    page_obj = p.get_page(page_number)
+        
+    context = {
+        #"ver": ver,
+        #"notv": notv,
+        "numver": len(ver),
+        "numnotv": numnotv,
+        "page_obj": page_obj,
+        "year": year,
+        "month": month,
+        }
+
+    return render(request, "bibtool/nameverified.html", context)
+
+
+def nameunknown(request,year,month):
 
     #if they are NOT loggedin...
     if not request.user.is_authenticated:
@@ -293,13 +378,17 @@ def nameunknown(request,year, month):
     authors = Author.objects.filter(created__year=year,created__month=month,inst_id=4,autoclass=False,adminbibgroup=bibgroup)
     numunknown = len(authors)
 
-    totart = Author.objects.filter(created__year=year,created__month=month,autoclass=False,adminbibgroup=bibgroup)
+    numtotal = Author.objects.filter(created__year=year,created__month=month,autoclass=False,adminbibgroup=bibgroup).count()
 
-    numtotal = len(totart)
     numknown = numtotal-numunknown
 
+    p = Paginator(authors, 250)
+
+    page_number = request.GET.get("page")
+    page_obj = p.get_page(page_number)
+
     context = {
-        "authors": authors,
+        "page_obj": page_obj,
         "numunknown": numunknown,
         "numknown": numknown
     }
@@ -358,7 +447,7 @@ def post_nameupdate(request):
 def post_nameverify(request):
 
     upauthid = request.POST.getlist("authid[]")
-    art = request.POST["art"]
+    art = request.POST.getlist("art[]")
     verify = request.POST["verify"]
 
     if verify == str(1):
@@ -378,9 +467,10 @@ def post_nameverify(request):
             new.inst_id = 4
             new.status_id = 3
             new.autoclass = False
-            thisart = NewArticle.objects.get(id=art)
-            thisart.completed = False
-            thisart.save()
+            for y in art:
+                thisart = NewArticle.objects.get(id=y)
+                thisart.completed = False
+                thisart.save()
 
         #print (ver)
         new.save()
@@ -391,21 +481,43 @@ def post_nameverify(request):
         newwork = Work.objects.create(username_id=userid,author_id=x)
         newwork.save()
 
-    arts = Author.objects.filter(bibcode=art)
+    for z in art:
 
-    flag = 0
-    for y in arts:
-        if y.status.id == 3 or y.status.id == 2 or y.edited == False:
-            flag = 1
+        arts = Author.objects.filter(bibcode=z)
 
-    if flag == 0:
-        thisart = NewArticle.objects.get(id=art)
-        thisart.completed = True
-        thisart.save()
+        flag = 0
+        for y in arts:
+            if y.status.id == 3 or y.status.id == 2 or y.edited == False:
+                flag = 1
+
+        if flag == 0:
+            thisart = NewArticle.objects.get(id=z)
+            thisart.completed = True
+            thisart.save()
 
     return HttpResponseRedirect(reverse("batch"))
 
 
+def bibcode(request,bib):
+    #single bibcode view
+    #2023ApJS..269...13G
+
+    #if they are NOT loggedin...
+    if not request.user.is_authenticated:
+        context = {
+            "state": "home"
+            }
+        return render(request, "bibtool/index.html", context)
+
+    thisart = NewArticle.objects.get(bibcode=bib)
+    auths = Author.objects.filter(bibcode__bibcode=bib)
+
+    context = {
+            "bib" : thisart,
+            "bib_list": auths,
+            }
+    return render(request, "bibtool/bibcode.html", context)
+    
 
 
 ## Legacy Article BibTool System
