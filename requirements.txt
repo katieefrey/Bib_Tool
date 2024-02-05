@@ -72,7 +72,7 @@ djangorestframework==3.13.1
 docutils @ file:///C:/ci/docutils_1620828194019/work
 entrypoints==0.3
 et-xmlfile==1.1.0
-fastapi==0.75.2
+fastapi==0.109.1
 fastcache==1.1.0
 filelock @ file:///opt/conda/conda-bld/filelock_1642510437405/work
 flake8 @ file:///tmp/build/80754af9/flake8_1620776156532/work
