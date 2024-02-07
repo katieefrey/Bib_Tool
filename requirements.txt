@@ -65,7 +65,7 @@ defusedxml @ file:///tmp/build/80754af9/defusedxml_1615228127516/work
 diff-match-patch @ file:///Users/ktietz/demo/mc3/conda-bld/diff-match-patch_1630511840874/work
 distributed @ file:///C:/ci/distributed_1635950227219/work
 dj-database-url==0.5.0
-Django==3.0.8
+Django==3.2.24
 django-crispy-forms==1.9.0
 django-heroku==0.3.1
 djangorestframework==3.13.1
