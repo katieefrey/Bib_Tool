@@ -27,7 +27,7 @@ beautifulsoup4 @ file:///tmp/build/80754af9/beautifulsoup4_1631874778482/work
 binaryornot @ file:///tmp/build/80754af9/binaryornot_1617751525010/work
 bitarray @ file:///C:/ci/bitarray_1641817440362/work
 bkcharts==0.2
-black==19.10b0
+black==24.3.0
 bleach @ file:///opt/conda/conda-bld/bleach_1641577558959/work
 bokeh @ file:///C:/ci/bokeh_1638363000110/work
 boto==2.49.0
